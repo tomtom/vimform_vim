@@ -1,0 +1,27 @@
+*vimform.txt*       Simple text-based forms for vim
+
+This experimental plugin provides simple text-based forms for vim.
+
+Example: >
+
+    let form_s = "Form Test~\n".
+                \"Field1.1:´                      ´    Field1.2:´                      ´\n".
+                \"Field2.1:´                      ´    Field2.2:´                      ´\n"
+
+    let form = vimform#SimpleForm()
+    let form.fields = {'Field2.1': 'foo', 'Field2.2': 'bar'}
+    function! form.Do_Submit() dict "{{{3
+        echom "Test: ". self.fields['Field1.1'] ." ". self.fields['Field2.2']
+    endf
+
+    call vimform#WithString(form_s, form)
+
+Currently only single line text fields are supported.
+
+
+-----------------------------------------------------------------------
+
+Extracted from http://github.com/tomtom/vimtlib
+Status:  Experimental
+Install: See http://github.com/tomtom/vimtlib/blob/master/INSTALL.TXT
+

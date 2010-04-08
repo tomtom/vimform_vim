@@ -1,0 +1,115 @@
+*vimform.txt*       Simple text-based forms for vim
+                    Author: Tom Link, micathom at gmail com
+
+This experimental plugin provides simple text-based forms for vim.
+
+Example: >
+
+    let form_s = "Form Test~\n".
+                \"Field1.1:´                      ´    Field1.2:´                      ´\n".
+                \"Field2.1:´                      ´    Field2.2:´                      ´\n"
+
+    let form = vimform#SimpleForm()
+    let form.fields = {'Field2.1': 'foo', 'Field2.2': 'bar'}
+    function! form.Do_Submit() dict "{{{3
+        " TLogVAR self.fields
+        echom "Test: ". self.fields['Field1.1'] ." ". self.fields['Field2.2']
+    endf
+
+    call vimform#WithString(form_s, form)
+
+
+
+-----------------------------------------------------------------------
+Install~
+
+In order to install the vba, open the vba file in VIM and type: >
+
+    :so %
+
+See :help vimball for details.
+
+This script requires hookcursormoved (vimscript #2037) to be installed.
+
+Also available via git: http://github.com/tomtom/vimtlib/
+
+
+========================================================================
+Contents~
+
+        vimform#SimpleForm ........ |vimform#SimpleForm()|
+        vimform#WithFile .......... |vimform#WithFile()|
+        vimform#WithString ........ |vimform#WithString()|
+        vimform#WithArray ......... |vimform#WithArray()|
+        vimform#Form .............. |vimform#Form()|
+        <cr> ...................... |<cr>|
+        i_<cr> .................... |i_<cr>|
+        <c-cr> .................... |<c-cr>|
+        i_<c-cr> .................. |i_<c-cr>|
+        <tab> ..................... |<tab>|
+        i_<tab> ................... |i_<tab>|
+        <s-tab> ................... |<s-tab>|
+        i_<s-tab> ................. |i_<s-tab>|
+        prototype.Do_Cancel
+        prototype.CollectFields
+        prototype.SetField
+        prototype.GetField
+
+
+========================================================================
+autoload/vimform.vim~
+
+                                                    *vimform#SimpleForm()*
+vimform#SimpleForm()
+
+                                                    *vimform#WithFile()*
+vimform#WithFile(file, ...)
+
+                                                    *vimform#WithString()*
+vimform#WithString(string, ...)
+
+                                                    *vimform#WithArray()*
+vimform#WithArray(lines, ...)
+
+                                                    *vimform#Form()*
+vimform#Form(form)
+
+                                                    *<cr>*
+<cr> ... :call <SID>Submit()<cr>
+
+                                                    *i_<cr>*
+i_<cr> ... <c-\><c-n>:call <SID>Submit()<cr>
+
+                                                    *<c-cr>*
+<c-cr> ... :call <SID>Submit()<cr>
+
+                                                    *i_<c-cr>*
+i_<c-cr> ... <c-\><c-n>:call <SID>Submit()<cr>
+
+                                                    *<tab>*
+<tab> ... :call <SID>NextField('w', 1)<cr>
+
+                                                    *i_<tab>*
+i_<tab> ... <c-\><c-n>:call <SID>NextField('w', 1)<cr>
+
+                                                    *<s-tab>*
+<s-tab> ... hh:call <SID>NextField('bw', 1)<cr>
+
+                                                    *i_<s-tab>*
+i_<s-tab> ... <c-\><c-n>hh:call <SID>NextField('bw', 1)<cr>
+
+
+prototype.Do_Cancel
+
+
+prototype.CollectFields
+
+
+prototype.SetField
+
+
+prototype.GetField
+
+
+
+vim:tw=78:fo=tcq2:isk=!-~,^*,^|,^":ts=8:ft=help:norl:
