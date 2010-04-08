@@ -3,17 +3,13 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2008-07-16.
-" @Last Change: 2010-01-03.
-" @Revision:    0.0.276
+" @Last Change: 2010-04-08.
+" @Revision:    0.0.277
 " 
 " TODO: Demo: :s Form
 " TODO: Multi-line text fields
 
 if &cp || exists("loaded_vimform_autoload")
-    finish
-endif
-if !exists('g:loaded_hookcursormoved') || g:loaded_hookcursormoved < 9
-    echoerr 'hookcursormoved >= 0.9 is required'
     finish
 endif
 let loaded_vimform_autoload = 1
