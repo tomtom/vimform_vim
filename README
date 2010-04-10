@@ -47,6 +47,9 @@ Use <tab> to change fields.
 Press <c-cr> to submit the form. If the cursor, is not over a button, 
 the Do_Submit() method will be called.
 
+Press <c-space> (or <c-x><c-o>) to invoke the completion menu if a 
+completion function is defined for the current field.
+
 Buttons are marked with |mark|s. So you can jump to a button with |`|X, 
 where X is the "accelerator" key marked with "&".
 

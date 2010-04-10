@@ -4,10 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2008-07-16.
 " @Last Change: 2010-04-10.
-" @Revision:    0.0.742
-" 
-" TODO: Demo: :s Form
-" TODO: Multi-line text fields
+" @Revision:    0.0.743
 
 let s:save_cpo = &cpo
 set cpo&vim
