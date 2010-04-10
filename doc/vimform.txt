@@ -48,6 +48,9 @@ Use <tab> to change fields.
 Press <c-cr> to submit the form. If the cursor, is not over a button, 
 the Do_Submit() method will be called.
 
+Press <c-space> (or <c-x><c-o>) to invoke the completion menu if a 
+completion function is defined for the current field.
+
 Buttons are marked with |mark|s. So you can jump to a button with |`|X, 
 where X is the "accelerator" key marked with "&".
 
@@ -81,7 +84,7 @@ autoload/vimform.vim~
 
                                                     *vimform#New()*
 vimform#New()
-    Retrun the default form template.
+    Return the default form template.
 
                                                     *vimform#SimpleForm()*
 vimform#SimpleForm()
@@ -91,8 +94,18 @@ vimform#SimpleForm()
 g:vimform#prototype            (default: {...})
     The default form tepmlate.
 
+
+
+    Show the form in a split window.
+
+
+g:vimform#prototype#Show(?cmd = "split")
+    Show the form.
+    cmd should create a new buffer. By default, the new buffer will be 
+    shown in a split view.
+
                                                     *vimform#Complete1()*
-#Split(?cmd = "split")
+vimform#Complete1()
 
                                                     *vimform#Complete()*
 vimform#Complete(findstart, base)

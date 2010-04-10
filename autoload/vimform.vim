@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2008-07-16.
 " @Last Change: 2010-04-10.
-" @Revision:    0.0.707
+" @Revision:    0.0.717
 " 
 " TODO: Demo: :s Form
 " TODO: Multi-line text fields
@@ -18,7 +18,7 @@ augroup Vimform
 augroup END
 
 
-" Retrun the default form template.
+" Return the default form template.
 function! vimform#New() "{{{3
     let form = copy(g:vimform#prototype)
     return form
@@ -49,8 +49,17 @@ if !exists('g:vimform#prototype')
 endif
 
 
-" :display: #Split(?cmd = "split")
-function! g:vimform#prototype.Split(...) dict "{{{3
+" Show the form in a split window.
+function! g:vimform#prototype.Split() dict "{{{3
+    call self.Show('split')
+endf
+
+
+" :display: g:vimform#prototype#Show(?cmd = "split")
+" Show the form.
+" cmd should create a new buffer. By default, the new buffer will be 
+" shown in a split view.
+function! g:vimform#prototype.Show(...) dict "{{{3
     let cmd = a:0 >= 1 ? a:1 : 'split'
     exec cmd fnameescape(self.name)
     let self.bufnr = bufnr('%')
@@ -84,6 +93,7 @@ function! g:vimform#prototype.Setup() dict "{{{3
 endf
 
 
+let s:vimform_modification = 0
 let s:indent_plus = 3
 
 function! g:vimform#prototype.Display() dict "{{{3
@@ -375,7 +385,7 @@ endf
 function! g:vimform#prototype.GetAllFields() dict "{{{3
     let dict = {}
     let names = self.GetOrderedFieldNames()
-    TLogVAR names
+    " TLogVAR names
     for name in names
         let dict[name] = self.GetField(name, names)
     endfor
