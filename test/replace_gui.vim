@@ -4,20 +4,21 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2008-07-16.
 " @Last Change: 2010-04-10.
-" @Revision:    95
+" @Revision:    99
 
 
-let replace_form= vimform#SimpleForm()
+let replace_form = vimform#SimpleForm()
 let replace_form.name = "Search & Replace"
 let replace_form.fields = [
-            \ ['Search'],
-            \ ['Replace'],
+            \ ['Search', {'tooltip': 'A regular expression'}],
+            \ ['Replace', {'tooltip': 'The replacement expression'}],
             \ ['--- Options'],
             \ ['Replace all', {'value': 1, 'type': 'checkbox', 'return': {'1': 'g', '0': ''}}],
             \ ['Case-sensitive', {'type': 'checkbox', 'return': {'1': 'I', '0': ''}}],
             \ ['Confirm', {'value': 1, 'type': 'checkbox', 'return': {'1': 'c', '0': ''}}],
             \ ['Ignore errors', {'type': 'checkbox', 'return': {'1': 'e', '0': ''}}],
             \ ]
+
 function! replace_form.Do_Submit() dict "{{{3
     let search = self.values['Search']
     if !empty(search)
