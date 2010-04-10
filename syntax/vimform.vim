@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2008-07-16.
 " @Last Change: 2010-04-10.
-" @Revision:    0.0.19
+" @Revision:    0.0.24
 
 if version < 600
     syntax clear
@@ -20,15 +20,19 @@ endif
 
 syn match VimformLabel /[^][:space:]][^]:]\{-}\s*\ze:/ nextgroup=VimformField
 syn region VimformField matchgroup=Comment start=/:´/ end=/´/ skip=/\\´/
-syn match VimformButton /<<.\{-}>>/
 syn match VimformTitle /^.\{-}\~$/
 syn match VimformSeparator /^_\+ .\{-} _\+$/
+syn match VimformComment /^" .*$/
+syn match VimformButton /<<.\{-}>>/ contained containedin=VimformControls
+syn match VimformControls /^| .* |$/ contains=VimformButton
 
 HiLink VimformLabel Constant 
 HiLink VimformField Statement
 HiLink VimformButton Special
+HiLink VimformControls Identifier
 HiLink VimformTitle PreProc
 HiLink VimformSeparator PreProc
+HiLink VimformComment Comment
 
 
 delcommand HiLink

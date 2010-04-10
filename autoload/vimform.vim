@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2008-07-16.
 " @Last Change: 2010-04-10.
-" @Revision:    0.0.743
+" @Revision:    0.0.883
 
 let s:save_cpo = &cpo
 set cpo&vim
@@ -17,7 +17,7 @@ augroup END
 
 " Return the default form template.
 function! vimform#New() "{{{3
-    let form = copy(g:vimform#prototype)
+    let form = deepcopy(g:vimform#prototype)
     return form
 endf
 
@@ -36,10 +36,7 @@ endf
 command! -bang VimformReset if !exists('b:vimform')
             \ |     echoerr 'Not a VimForm buffer'
             \ | else 
-            \ |     if empty('<bang>')
-            \ |         call b:vimform.CollectFields()
-            \ |     endif
-            \ |     call b:vimform.Show('edit')
+            \ |     call b:vimform.Reset(!empty('<bang>'))
             \ | endif
 
 
@@ -57,7 +54,9 @@ if !exists('g:vimform#prototype')
                 \ 'values': {},
                 \ 'fields': [],
                 \ '_fields': {},
-                \ }
+                \ 'epilogue': [
+                \   'Press <C-CR> to submit form; press <F5> to redraw the form'
+                \ ]}
 endif
 
 
@@ -80,8 +79,7 @@ function! g:vimform#prototype.Show(...) dict "{{{3
     call self.SetIndent()
     call self.Display()
     autocmd! Vimform * <buffer>
-    autocmd Vimform CursorMoved,CursorMovedI <buffer> call b:vimform.SetModifiable()
-    call self.NextField('w', 1)
+    autocmd Vimform CursorMoved,CursorMovedI <buffer> call b:vimform.CursorMoved()
 endf
 
 
@@ -105,20 +103,25 @@ function! g:vimform#prototype.Setup() dict "{{{3
 endf
 
 
+function! g:vimform#prototype.Reset(vanilla) dict "{{{3
+    if a:vanilla
+        let self.values = {}
+    " else
+    "     call self.CollectFields()
+    endif
+    call self.Show('edit')
+endf
+
+
 let s:vimform_modification = 0
 let s:indent_plus = 3
+let s:special_line_rx = '\^\(| \.\+ |\|" \.\+\|_\+ \.\{-} _\+\)\$'
 
 function! g:vimform#prototype.Display() dict "{{{3
     setlocal modifiable
     1,$delete
 
-    let formatted_buttons = []
-    for button in self.buttons
-        call add(formatted_buttons, s:FormatButton(self.GetButtonLabel(button)))
-    endfor
-    if !empty(formatted_buttons)
-        call append('$', join(formatted_buttons))
-    endif
+    let width = winwidth(0) - &foldcolumn - 4
 
     let fmt = ' %'. (self.indent - s:indent_plus) .'s: %s'
     " TLogVAR fmt
@@ -126,7 +129,6 @@ function! g:vimform#prototype.Display() dict "{{{3
         let name = get(def0, 0)
         if name =~ '^-'
             let text = matchstr(name, '^-\+\s\+\zs.*$')
-            let width = winwidth(0) - &foldcolumn - 4
             let npre = self.indent - 1
             let npost = width - npre - len(text)
             let line = repeat('_', npre) .' '. text .' '. repeat('_', npost)
@@ -144,14 +146,28 @@ function! g:vimform#prototype.Display() dict "{{{3
         call append('$', line)
     endfor
 
+    let formatted_buttons = []
+    for button in self.buttons
+        call add(formatted_buttons, s:FormatButton(self.GetButtonLabel(button)))
+    endfor
+    if !empty(formatted_buttons)
+        let formatted_buttons_str = printf('| %'. (width - 2) .'s |', join(formatted_buttons))
+        call append('$', formatted_buttons_str)
+    endif
+
+    if !empty(self.epilogue)
+        call append('$', map(copy(self.epilogue), 'printf(''" %''. (width - 2) .''s "'', v:val)'))
+    endif
+
     0delete
     call s:SetAccellerators()
     norm! ggzt
+    call self.NextField('cw', 1)
 endf
 
 
-function! g:vimform#prototype.EnsureBuffer() dict "{{{3
-    if bufnr('%') != self.bufnr
+function! s:EnsureBuffer() "{{{3
+    if !exists('b:vimform') || bufnr('%') != b:vimform.bufnr
         " TLogVAR bufnr('%'), self.bufnr
         throw "Vimform: Wrong buffer"
     endif
@@ -247,28 +263,42 @@ function! g:vimform#prototype.ValidateField(field, value) dict "{{{3
 endf
 
 
-function! g:vimform#prototype.NextField(flags, feedkeys) dict "{{{3
-    call self.EnsureBuffer()
+function! g:vimform#prototype.NextField(flags, insertmode) dict "{{{3
+    call s:EnsureBuffer()
     exec 'resize '. line('$')
     let frx = self.GetFieldsRx()
     let brx = self.GetButtonsRx()
     let rx = frx .'\|'. brx
+    let name = self.GetCurrentFieldName()
+    if !empty(name)
+        let self.values[name] = self.GetField(name)
+        if a:flags =~ 'b'
+            norm! 0
+        endif
+    endif
     let lnum = search(rx, 'e'. a:flags)
-    if getline(lnum) =~ frx
+    if lnum && getline(lnum) =~ frx
+        call cursor(lnum, self.indent + 1)
         let type = self.GetCurrentFieldType()
         if type == 'checkbox'
-            call s:Feedkeys('ll', 1)
-        else
+            call s:Feedkeys('l', 1)
+        elseif col('.') == col('$') - 1
             call s:Feedkeys('a', 1)
+        else
+            call s:Feedkeys('i', 1)
         endif
     endif
 endf
 
 
-function! g:vimform#prototype.GetCurrentFieldName() dict "{{{3
+" :display: g:vimform#prototype.GetCurrentFieldName(?pos = '.') dict "{{{3
+function! g:vimform#prototype.GetCurrentFieldName(...) dict "{{{3
     let frx = self.GetFieldsRx()
     let view = winsaveview()
     try
+        if a:0 >= 1
+            call setpos('.', a:1)
+        endif
         if search(frx, 'bW')
             return matchstr(getline('.'), self.GetFieldRx('\zs\.\{-}\ze'))
         endif
@@ -290,11 +320,35 @@ function! g:vimform#prototype.GetCurrentFieldType() dict "{{{3
 endf
 
 
-function! s:Feedkeys(keys, level) "{{{3
-    " TLogVAR a:keys
+function! s:Modifiable() "{{{3
     let s:vimform_modification = 1
     setlocal modifiable
+endf
+
+
+function! s:Feedkeys(keys, level) "{{{3
+    " TLogVAR a:keys
+    call s:Modifiable()
     call feedkeys(a:keys, 'n')
+endf
+
+
+function! g:vimform#prototype.CursorMoved() dict "{{{3
+    let lnum = line('.')
+    let line = getline(lnum)
+    let field = self.GetCurrentFieldName()
+    " TLogVAR line, len(line)
+    if line !~ '\S' && len(line) < self.indent
+        let s:vimform_modification = 2
+        setlocal modifiable
+        call setline(lnum, repeat(' ', self.indent))
+        " setlocal nomodifiable
+        let s:vimform_modification = 0
+    endif
+    call self.SetModifiable()
+    if !empty(field) && col('.') <= self.indent
+        call cursor(lnum, self.indent + 1)
+    endif
 endf
 
 
@@ -306,7 +360,7 @@ function! g:vimform#prototype.SetModifiable() dict "{{{3
         let modifiable = 1
     else
         let line = getline('.')
-        if line =~ '^-\+ '
+        if line =~ s:special_line_rx
             let modifiable = 0
         else
             let field = self.GetCurrentFieldName()
@@ -314,6 +368,7 @@ function! g:vimform#prototype.SetModifiable() dict "{{{3
             if empty(field)
                 let modifiable = 0
             else
+                " TLogVAR col('.'), self.indent
                 if col('.') <= self.indent
                     let modifiable = 0
                 else
@@ -356,6 +411,25 @@ function! g:vimform#prototype.SpecialKey(key) dict "{{{3
 endf
 
 
+function! g:vimform#prototype.Key(key) dict "{{{3
+    " TLogVAR a:key
+    let key = a:key
+    if a:key =~ '^[ai]$'
+        let ccol = col('.')
+        let ecol = col('$')
+        " TLogVAR ccol, ecol, self.indent
+        if a:key == 'a' && ccol < self.indent
+            let key = ''
+        elseif a:key == 'i' && ccol <= self.indent
+            let key = ''
+        elseif ccol >= self.indent
+            call s:Modifiable()
+        endif
+    endif
+    return key
+endf
+
+
 function! s:ToggleCheckbox() "{{{3
     let line = getline('.')
     if line =~ '\[ \]$'
@@ -386,6 +460,7 @@ function! g:vimform#prototype.GetButtonsRx() dict "{{{3
     let button_labels = map(copy(self.buttons), 'self.GetButtonLabel(v:val)')
     call map(button_labels, 'strpart(v:val, 1)')
     let rx = '\V<<\.\ze\('. join(button_labels, '\|') .'\)>>'
+    " TLogVAR rx
     return rx
 endf
 
@@ -412,7 +487,7 @@ endf
 
 
 function! g:vimform#prototype.GetField(name, ...) dict "{{{3
-    call self.EnsureBuffer()
+    call s:EnsureBuffer()
     let quiet = a:0 >= 1
     let names = a:0 >= 1 ? a:1 : self.GetOrderedFieldNames()
     let index = index(names, a:name)
@@ -428,8 +503,7 @@ function! g:vimform#prototype.GetField(name, ...) dict "{{{3
             " TLogVAR a:name, crx, start
             if start
                 if index < len(names) - 1
-                    let nrx = self.GetFieldsRx()
-                    let nrx .= '\|\^_\+ \.\{-} _\+\$'
+                    let nrx = self.GetFieldsRx() .'\|'. s:special_line_rx
                     let end = search(nrx, 'w') - 1
                 else
                     let end = line('$')
@@ -498,6 +572,16 @@ function! g:vimform#prototype.Indent() dict "{{{3
     endif
     " TLogVAR indent
     return indent
+endf
+
+
+function! vimform#Balloon() "{{{3
+    call s:EnsureBuffer()
+    let pos = [v:beval_bufnr, v:beval_lnum, v:beval_col, 0]
+    let field = b:vimform.GetCurrentFieldName(pos)
+    if !empty(field)
+        return get(b:vimform._fields[field], 'tooltip', '')
+    endif
 endf
 
 

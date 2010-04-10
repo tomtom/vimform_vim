@@ -76,6 +76,7 @@ Contents~
         vimform#SimpleForm ..... |vimform#SimpleForm()|
         :VimformReset .......... |:VimformReset|
         g:vimform#prototype .... |g:vimform#prototype|
+        vimform#Balloon ........ |vimform#Balloon()|
         vimform#Complete1 ...... |vimform#Complete1()|
         vimform#Complete ....... |vimform#Complete()|
 
@@ -110,6 +111,9 @@ g:vimform#prototype#Show(?cmd = "split")
     Show the form.
     cmd should create a new buffer. By default, the new buffer will be 
     shown in a split view.
+
+                                                    *vimform#Balloon()*
+g:vimform#prototype.GetCurrentFieldName(?pos = '.') dict "{{{3
 
                                                     *vimform#Complete1()*
 vimform#Complete1()
