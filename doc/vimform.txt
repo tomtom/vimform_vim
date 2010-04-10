@@ -74,6 +74,7 @@ Contents~
 
         vimform#New ............ |vimform#New()|
         vimform#SimpleForm ..... |vimform#SimpleForm()|
+        :VimformReset .......... |:VimformReset|
         g:vimform#prototype .... |g:vimform#prototype|
         vimform#Complete1 ...... |vimform#Complete1()|
         vimform#Complete ....... |vimform#Complete()|
@@ -89,6 +90,12 @@ vimform#New()
                                                     *vimform#SimpleForm()*
 vimform#SimpleForm()
     Return a form template that has no default buttons.
+
+                                                    *:VimformReset*
+:VimformReset
+    Reset the current form.
+    If called with [!], use the original values. Otherwise try to reuse 
+    the current values.
 
                                                     *g:vimform#prototype*
 g:vimform#prototype            (default: {...})

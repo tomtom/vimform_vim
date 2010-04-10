@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2008-07-16.
 " @Last Change: 2010-04-10.
-" @Revision:    0.0.717
+" @Revision:    0.0.742
 " 
 " TODO: Demo: :s Form
 " TODO: Multi-line text fields
@@ -33,6 +33,20 @@ function! vimform#SimpleForm() "{{{3
 endf
 
 
+" Reset the current form.
+" If called with [!], use the original values. Otherwise try to reuse 
+" the current values.
+command! -bang VimformReset if !exists('b:vimform')
+            \ |     echoerr 'Not a VimForm buffer'
+            \ | else 
+            \ |     if empty('<bang>')
+            \ |         call b:vimform.CollectFields()
+            \ |     endif
+            \ |     call b:vimform.Show('edit')
+            \ | endif
+
+
+
 if !exists('g:vimform#prototype')
     " The default form tepmlate.
     " :read: let g:vimform#prototype = {...}   "{{{2
@@ -43,6 +57,7 @@ if !exists('g:vimform#prototype')
                 \   {'name': 'Submit', 'label': '&Submit'},
                 \   {'name': 'Cancel', 'label': '&Cancel'},
                 \ ],
+                \ 'values': {},
                 \ 'fields': [],
                 \ '_fields': {},
                 \ }
@@ -121,10 +136,11 @@ function! g:vimform#prototype.Display() dict "{{{3
         else
             let def = get(def0, 1, {})
             let type = get(def, 'type', 'text')
+            let value = get(self.values, name, get(def, 'value', ''))
             if type == 'checkbox'
-                let text = printf('[%s]', get(def, 'value', 0) ? 'X' : ' ')
+                let text = printf('[%s]', empty(value) ? ' ' : 'X')
             else
-                let text = get(def, 'value', '')
+                let text = value
             endif
             let line = printf(fmt, name, text)
         endif
@@ -400,6 +416,7 @@ endf
 
 function! g:vimform#prototype.GetField(name, ...) dict "{{{3
     call self.EnsureBuffer()
+    let quiet = a:0 >= 1
     let names = a:0 >= 1 ? a:1 : self.GetOrderedFieldNames()
     let index = index(names, a:name)
     if index == -1
@@ -407,12 +424,14 @@ function! g:vimform#prototype.GetField(name, ...) dict "{{{3
     else
         let view = winsaveview()
         try
+            let def = self._fields[a:name]
+            let type = get(def, 'type', 'text')
             let crx = self.GetFieldRx(a:name)
             let start = search(crx, 'w')
             " TLogVAR a:name, crx, start
             if start
                 if index < len(names) - 1
-                    let nrx = self.GetFieldRx(names[index + 1])
+                    let nrx = self.GetFieldsRx()
                     let nrx .= '\|\^_\+ \.\{-} _\+\$'
                     let end = search(nrx, 'w') - 1
                 else
@@ -423,7 +442,6 @@ function! g:vimform#prototype.GetField(name, ...) dict "{{{3
                     let lines = getline(start, end)
                     call map(lines, 'strpart(v:val, self.indent)')
                     " TLogVAR lines
-                    let def = self._fields[a:name]
                     let join = get(def, 'join', ' ')
                     let out = []
                     for line in lines
@@ -438,7 +456,6 @@ function! g:vimform#prototype.GetField(name, ...) dict "{{{3
                     endfor
                     " TLogVAR out
                     let value = join(out, '')
-                    let type = get(def, 'type', 'text')
                     if type == 'checkbox'
                         let value = value =~ 'X'
                     endif
@@ -450,7 +467,11 @@ function! g:vimform#prototype.GetField(name, ...) dict "{{{3
                     endif
                 endif
             endif
-            echoerr 'VimForm: Field not found: ' a:name
+            if quiet
+                return type == 'checkbox' ? 0 : ''
+            else
+                echoerr 'VimForm: Field not found: ' a:name
+            endif
         finally
             call winrestview(view)
         endtry
