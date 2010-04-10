@@ -1,23 +1,55 @@
 *vimform.txt*       Simple text-based forms for vim
                     Author: Tom Link, micathom at gmail com
 
-This experimental plugin provides simple text-based forms for vim.
-
 Example: >
 
-    let form_s = "Form Test~\n".
-                \"Field1.1:´                      ´    Field1.2:´                      ´\n".
-                \"Field2.1:´                      ´    Field2.2:´                      ´\n"
-
-    let form = vimform#SimpleForm()
-    let form.fields = {'Field2.1': 'foo', 'Field2.2': 'bar'}
+    let form = vimform#New()
+    let form.name = "Test Form"
+    let form.fields = [
+                \ ['Name'],
+                \ ['Address',  {'join': "\n"}],
+                \ ['Planet',   {'value': 'Earth'}],
+                \ ['Phone',    {'validate': '%s =~ ''^[0-9()+-]*$''',
+                \               'message': 'Must be a phone number'}],
+                \ ['E-Mail',   {'validate': '%s =~ ''^\([a-zA-Z.]\+@[a-zA-Z]\+\.[a-zA-Z.]\+\)\?$''',
+                \               'message': 'Must be an e-mail'}],
+                \ ['Private',  {'value': 0, 'type': 'checkbox'}],
+                \ ['Business', {'value': 1, 'type': 'checkbox'}],
+                \ ]
     function! form.Do_Submit() dict "{{{3
-        " TLogVAR self.fields
-        echom "Test: ". self.fields['Field1.1'] ." ". self.fields['Field2.2']
+        echom "Test: ". self.name
+        for [field, value] in items(self.values)
+            echom "Field" field value
+        endfor
     endf
 
-    call vimform#WithString(form_s, form)
+    call form.Split()
 
+This will create a form, which looks like this: >
+
+    <<&Submit>> <<&Cancel>>
+         Name: 
+      Address: 
+       Planet: Earth
+        Phone: 
+       E-Mail: 
+      Private: [ ]
+     Business: [X]
+
+The following field types are currently supported:
+
+    - text fields
+    - check boxes
+
+Check boxes can be toggled by pressing: <cr>, <space>, of <LeftMouse>.
+
+Use <tab> to change fields.
+
+Press <c-cr> to submit the form. If the cursor, is not over a button, 
+the Do_Submit() method will be called.
+
+Buttons are marked with |mark|s. So you can jump to a button with |`|X, 
+where X is the "accelerator" key marked with "&".
 
 
 -----------------------------------------------------------------------
@@ -31,84 +63,39 @@ See :help vimball for details.
 
 This script requires hookcursormoved (vimscript #2037) to be installed.
 
-Also available via git: http://github.com/tomtom/vimtlib/
+Also available via git: http://github.com/tomtom/vimform_vim/
 
 
 ========================================================================
 Contents~
 
-        vimform#SimpleForm ........ |vimform#SimpleForm()|
-        vimform#WithFile .......... |vimform#WithFile()|
-        vimform#WithString ........ |vimform#WithString()|
-        vimform#WithArray ......... |vimform#WithArray()|
-        vimform#Form .............. |vimform#Form()|
-        <cr> ...................... |<cr>|
-        i_<cr> .................... |i_<cr>|
-        <c-cr> .................... |<c-cr>|
-        i_<c-cr> .................. |i_<c-cr>|
-        <tab> ..................... |<tab>|
-        i_<tab> ................... |i_<tab>|
-        <s-tab> ................... |<s-tab>|
-        i_<s-tab> ................. |i_<s-tab>|
-        prototype.Do_Cancel
-        prototype.CollectFields
-        prototype.SetField
-        prototype.GetField
+        vimform#New ............ |vimform#New()|
+        vimform#SimpleForm ..... |vimform#SimpleForm()|
+        g:vimform#prototype .... |g:vimform#prototype|
+        vimform#Complete1 ...... |vimform#Complete1()|
+        vimform#Complete ....... |vimform#Complete()|
 
 
 ========================================================================
 autoload/vimform.vim~
 
+                                                    *vimform#New()*
+vimform#New()
+    Retrun the default form template.
+
                                                     *vimform#SimpleForm()*
 vimform#SimpleForm()
+    Return a form template that has no default buttons.
 
-                                                    *vimform#WithFile()*
-vimform#WithFile(file, ...)
+                                                    *g:vimform#prototype*
+g:vimform#prototype            (default: {...})
+    The default form tepmlate.
 
-                                                    *vimform#WithString()*
-vimform#WithString(string, ...)
+                                                    *vimform#Complete1()*
+#Split(?cmd = "split")
 
-                                                    *vimform#WithArray()*
-vimform#WithArray(lines, ...)
-
-                                                    *vimform#Form()*
-vimform#Form(form)
-
-                                                    *<cr>*
-<cr> ... :call <SID>Submit()<cr>
-
-                                                    *i_<cr>*
-i_<cr> ... <c-\><c-n>:call <SID>Submit()<cr>
-
-                                                    *<c-cr>*
-<c-cr> ... :call <SID>Submit()<cr>
-
-                                                    *i_<c-cr>*
-i_<c-cr> ... <c-\><c-n>:call <SID>Submit()<cr>
-
-                                                    *<tab>*
-<tab> ... :call <SID>NextField('w', 1)<cr>
-
-                                                    *i_<tab>*
-i_<tab> ... <c-\><c-n>:call <SID>NextField('w', 1)<cr>
-
-                                                    *<s-tab>*
-<s-tab> ... hh:call <SID>NextField('bw', 1)<cr>
-
-                                                    *i_<s-tab>*
-i_<s-tab> ... <c-\><c-n>hh:call <SID>NextField('bw', 1)<cr>
-
-
-prototype.Do_Cancel
-
-
-prototype.CollectFields
-
-
-prototype.SetField
-
-
-prototype.GetField
+                                                    *vimform#Complete()*
+vimform#Complete(findstart, base)
 
 
 

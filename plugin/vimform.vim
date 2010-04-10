@@ -3,14 +3,14 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2008-07-16.
-" @Last Change: 2009-02-15.
-" @Revision:    2
+" @Last Change: 2010-04-09.
+" @Revision:    3
 " GetLatestVimScripts: 0 0 vimform.vim
 
 if &cp || exists("loaded_vimform")
     finish
 endif
-let loaded_vimform = 1
+let loaded_vimform = 2
 
 let s:save_cpo = &cpo
 set cpo&vim
