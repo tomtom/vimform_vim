@@ -58,7 +58,7 @@ if !exists('g:vimform#prototype')
                 \ 'mapargs': {},
                 \ 'header': [],
                 \ 'footer': [
-                \   'Press <F1> for help'
+                \   '<F1>:help; <F5>:redraw; <TAB>:next field; <C-CR>:submit'
                 \ ]}
 endif
 
