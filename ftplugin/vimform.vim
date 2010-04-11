@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-04-09.
 " @Last Change: 2010-04-11.
-" @Revision:    68
+" @Revision:    70
 
 if exists("b:did_ftplugin")
     finish
@@ -22,13 +22,14 @@ setlocal omnifunc=vimform#Complete
 setlocal ballooneval
 setlocal balloonexpr=vimform#Balloon()
 
-noremap <buffer> <cr> :call b:vimform.SpecialKey('<lt>cr>')<cr>
+noremap <buffer> <silent> <cr> :call b:vimform.SpecialKey('<lt>cr>')<cr>
+noremap <buffer> <silent> <space> :call b:vimform.SpecialKey('<lt>space>')<cr>
+noremap <buffer> <silent> <LeftMouse> <LeftMouse>:call b:vimform.SpecialKey('')<cr>
+inoremap <buffer> <silent> <LeftMouse> <LeftMouse><c-\><c-n>:call b:vimform.SpecialKey('')<cr>
+
 noremap <buffer> <f5> :VimformReset<cr>
 noremap <buffer> <f1> :help vimform-keys<cr>
 inoremap <buffer> <f1> <c-\><c-n>:help vimform-keys<cr>
-noremap <buffer> <space> :call b:vimform.SpecialKey('<lt>space>')<cr>
-noremap <buffer> <LeftMouse> <LeftMouse>:call b:vimform.SpecialKey('')<cr>
-inoremap <buffer> <LeftMouse> <LeftMouse><c-\><c-n>:call b:vimform.SpecialKey('')<cr>
 
 noremap <buffer> <c-cr> :call b:vimform.Submit()<cr>
 inoremap <buffer> <c-cr> <c-\><c-n>:call b:vimform.Submit()<cr>
