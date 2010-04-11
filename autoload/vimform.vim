@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2008-07-16.
 " @Last Change: 2010-04-11.
-" @Revision:    0.0.1024
+" @Revision:    0.0.1042
 
 let s:save_cpo = &cpo
 set cpo&vim
@@ -471,16 +471,23 @@ function! g:vimform#prototype.Key_dd() dict "{{{3
         let lnum = line('.')
         let line = getline(lnum)
         let frx  = self.GetFieldsRx()
+        let steps = 1
         if line =~ frx
-            if empty(strpart(line, self.indent))
+            if lnum < line('$') && getline(lnum + 1) =~ self.GetIndentRx()
+                let key = self.indent .'|d$J'
+                let steps += 2
+            elseif empty(strpart(line, self.indent))
                 let key = ''
             else
                 let key = self.indent .'|d$'
+                let steps += 1
             endif
         elseif lnum < line('$') && getline(lnum + 1) =~ frx
             let key .= 'k'
         endif
-        call self.SetModifiable(1)
+        if !empty(key)
+            call self.SetModifiable(steps)
+        endif
     endif
     return key
 endf
@@ -644,6 +651,11 @@ function! g:vimform#prototype.GetField(name, ...) dict "{{{3
             call winrestview(view)
         endtry
     endif
+endf
+
+
+function! g:vimform#prototype.GetIndentRx() dict "{{{3
+    return '\V\s\{'. self.indent .'}'
 endf
 
 
