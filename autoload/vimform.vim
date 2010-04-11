@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2008-07-16.
 " @Last Change: 2010-04-11.
-" @Revision:    0.0.1022
+" @Revision:    0.0.1024
 
 let s:save_cpo = &cpo
 set cpo&vim
@@ -47,6 +47,7 @@ if !exists('g:vimform#prototype')
     let g:vimform#prototype = {
                 \ 'name': '__Form__',
                 \ 'indent': 0,
+                \ 'options': '',
                 \ 'buttons': [
                 \   {'name': 'Submit', 'label': '&Submit'},
                 \   {'name': 'Cancel', 'label': '&Cancel'},
@@ -78,6 +79,9 @@ function! g:vimform#prototype.Show(...) dict "{{{3
     let self.bufnr = bufnr('%')
     let b:vimform = self.Setup()
     setlocal filetype=vimform
+    if !empty(self.options)
+        exec 'setlocal '. self.options
+    endif
     call self.SetIndent()
     call self.Display()
     autocmd! Vimform * <buffer>
