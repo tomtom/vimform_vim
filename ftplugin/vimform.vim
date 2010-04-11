@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-04-09.
 " @Last Change: 2010-04-11.
-" @Revision:    89
+" @Revision:    92
 
 if exists("b:did_ftplugin")
     finish
@@ -34,10 +34,10 @@ inoremap <buffer> <f1> <c-\><c-n>:help vimform-keys<cr>
 
 noremap <buffer> <c-cr> :call b:vimform.Submit()<cr>
 inoremap <buffer> <c-cr> <c-\><c-n>:call b:vimform.Submit()<cr>
-noremap <silent> <buffer> <tab> :call b:vimform.NextField('w', 0)<cr>
-inoremap <silent> <buffer> <tab> <c-\><c-n>:call b:vimform.NextField('w', 1)<cr>
-noremap <silent> <buffer> <s-tab> :call b:vimform.NextField('bw', 0)<cr>
-inoremap <silent> <buffer> <s-tab> <c-\><c-n>:call b:vimform.NextField('bw', 1)<cr>
+noremap <silent> <buffer> <tab> :call b:vimform.NextField('w', 0, 1)<cr>
+inoremap <silent> <buffer> <tab> <c-\><c-n>:call b:vimform.NextField('w', 1, 1)<cr>
+noremap <silent> <buffer> <s-tab> :call b:vimform.NextField('bw', 0, 1)<cr>
+inoremap <silent> <buffer> <s-tab> <c-\><c-n>:call b:vimform.NextField('bw', 1, 1)<cr>
 
 imap <expr> <buffer> <c-space> vimform#Complete1()
 

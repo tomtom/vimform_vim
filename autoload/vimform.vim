@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2008-07-16.
 " @Last Change: 2010-04-11.
-" @Revision:    0.0.1051
+" @Revision:    0.0.1061
 
 let s:save_cpo = &cpo
 set cpo&vim
@@ -173,7 +173,7 @@ function! g:vimform#prototype.Display() dict "{{{3
     0delete
     call s:SetAccellerators()
     norm! ggzt
-    call self.NextField('cw', 1)
+    call self.NextField('cw', 0, 1)
 endf
 
 
@@ -274,7 +274,8 @@ function! g:vimform#prototype.ValidateField(field, value) dict "{{{3
 endf
 
 
-function! g:vimform#prototype.NextField(flags, insertmode) dict "{{{3
+function! g:vimform#prototype.NextField(flags, in_insertmode, to_insertmode) dict "{{{3
+    " TLogVAR a:flags, a:in_insertmode, a:to_insertmode
     call s:EnsureBuffer()
     exec 'resize '. line('$')
     let frx = self.GetFieldsRx()
@@ -294,7 +295,7 @@ function! g:vimform#prototype.NextField(flags, insertmode) dict "{{{3
         " TLogVAR type, col('.'), col('$')
         if type == 'checkbox'
             call s:Feedkeys('l', 1)
-        elseif a:insertmode
+        elseif a:to_insertmode
             if col('.') == col('$') - 1
                 call s:Feedkeys('a', 1)
             else
@@ -347,7 +348,7 @@ function! g:vimform#prototype.CursorMoved() dict "{{{3
     " TLogVAR line
     " echom "DBG ". (line =~ s:special_line_rx)
     if line =~ s:special_line_rx
-        call self.NextField('w', 0)
+        call self.NextField('w', mode() == 'i', mode() != 'i')
     else
         " TLogVAR line, len(line)
         " TLogVAR col('$'), self.indent, mode()
