@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2008-07-16.
 " @Last Change: 2010-04-11.
-" @Revision:    0.0.896
+" @Revision:    0.0.903
 
 let s:save_cpo = &cpo
 set cpo&vim
@@ -430,6 +430,19 @@ function! g:vimform#prototype.Key(key) dict "{{{3
         elseif ccol >= self.indent
             call s:Modifiable()
         endif
+    elseif a:key == 'dd'
+        let frx = self.GetFieldsRx()
+        let line = getline('.')
+        if line =~ frx
+            if empty(strpart(line, self.indent))
+                let key = ''
+            else
+                let key = self.indent .'|d$'
+            endif
+        else
+            let key .= 'k'
+        endif
+        call s:Modifiable()
     endif
     return key
 endf

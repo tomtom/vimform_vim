@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-04-09.
 " @Last Change: 2010-04-11.
-" @Revision:    66
+" @Revision:    68
 
 if exists("b:did_ftplugin")
     finish
@@ -40,6 +40,7 @@ inoremap <silent> <buffer> <s-tab> <c-\><c-n>:call b:vimform.NextField('bw', 1)<
 imap <expr> <buffer> <c-space> vimform#Complete1()
 nmap <expr> <buffer> a b:vimform.Key('a')
 nmap <expr> <buffer> i b:vimform.Key('i')
+nmap <expr> <buffer> dd b:vimform.Key('dd')
 
 
 let &cpo = s:save_cpo
