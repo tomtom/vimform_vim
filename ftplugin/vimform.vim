@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-04-09.
-" @Last Change: 2010-04-10.
-" @Revision:    62
+" @Last Change: 2010-04-11.
+" @Revision:    66
 
 if exists("b:did_ftplugin")
     finish
@@ -24,6 +24,8 @@ setlocal balloonexpr=vimform#Balloon()
 
 noremap <buffer> <cr> :call b:vimform.SpecialKey('<lt>cr>')<cr>
 noremap <buffer> <f5> :VimformReset<cr>
+noremap <buffer> <f1> :help vimform-keys<cr>
+inoremap <buffer> <f1> <c-\><c-n>:help vimform-keys<cr>
 noremap <buffer> <space> :call b:vimform.SpecialKey('<lt>space>')<cr>
 noremap <buffer> <LeftMouse> <LeftMouse>:call b:vimform.SpecialKey('')<cr>
 inoremap <buffer> <LeftMouse> <LeftMouse><c-\><c-n>:call b:vimform.SpecialKey('')<cr>
