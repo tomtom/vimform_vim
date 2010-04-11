@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2008-07-16.
-" @Last Change: 2010-04-10.
-" @Revision:    90
+" @Last Change: 2010-04-11.
+" @Revision:    93
 
 
 let form = vimform#New()
@@ -21,7 +21,7 @@ let form.fields = [
 function! form.Do_Submit() dict "{{{3
     echom "Test: ". self.name
     for [field, value] in items(self.values)
-        echom "Field" field value
+        echom "Field" field string(value)
     endfor
 endf
 
