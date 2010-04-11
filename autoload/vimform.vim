@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2008-07-16.
-" @Last Change: 2010-04-10.
-" @Revision:    0.0.883
+" @Last Change: 2010-04-11.
+" @Revision:    0.0.896
 
 let s:save_cpo = &cpo
 set cpo&vim
@@ -54,8 +54,9 @@ if !exists('g:vimform#prototype')
                 \ 'values': {},
                 \ 'fields': [],
                 \ '_fields': {},
-                \ 'epilogue': [
-                \   'Press <C-CR> to submit form; press <F5> to redraw the form'
+                \ 'header': [],
+                \ 'footer': [
+                \   'Press <F1> for help'
                 \ ]}
 endif
 
@@ -123,6 +124,10 @@ function! g:vimform#prototype.Display() dict "{{{3
 
     let width = winwidth(0) - &foldcolumn - 4
 
+    if !empty(self.header)
+        call append('$', map(copy(self.header), 'printf(''" %''. (width - 2) .''s "'', v:val)'))
+    endif
+
     let fmt = ' %'. (self.indent - s:indent_plus) .'s: %s'
     " TLogVAR fmt
     for def0 in self.fields
@@ -155,8 +160,8 @@ function! g:vimform#prototype.Display() dict "{{{3
         call append('$', formatted_buttons_str)
     endif
 
-    if !empty(self.epilogue)
-        call append('$', map(copy(self.epilogue), 'printf(''" %''. (width - 2) .''s "'', v:val)'))
+    if !empty(self.footer)
+        call append('$', map(copy(self.footer), 'printf(''" %''. (width - 2) .''s "'', v:val)'))
     endif
 
     0delete
