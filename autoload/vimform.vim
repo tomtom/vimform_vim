@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2008-07-16.
 " @Last Change: 2010-04-11.
-" @Revision:    0.0.1042
+" @Revision:    0.0.1051
 
 let s:save_cpo = &cpo
 set cpo&vim
@@ -121,7 +121,7 @@ endf
 
 let s:vimform_modification = 0
 let s:indent_plus = 3
-let s:special_line_rx = '\^\(| \.\+ |\|" \.\+\|_\+ \.\{-} _\+\)\$'
+let s:special_line_rx = '\V\^\(| \.\{-} |\|" \.\+\|_\+ \.\{-} _\+\)\$'
 
 function! g:vimform#prototype.Display() dict "{{{3
     setlocal modifiable
@@ -293,10 +293,12 @@ function! g:vimform#prototype.NextField(flags, insertmode) dict "{{{3
         " TLogVAR type, col('.'), col('$')
         if type == 'checkbox'
             call s:Feedkeys('l', 1)
-        elseif col('.') == col('$') - 1
-            call s:Feedkeys('a', 1)
-        else
-            call s:Feedkeys('i', 1)
+        elseif a:insertmode
+            if col('.') == col('$') - 1
+                call s:Feedkeys('a', 1)
+            else
+                call s:Feedkeys('i', 1)
+            endif
         endif
     endif
 endf
@@ -340,23 +342,29 @@ endf
 
 function! g:vimform#prototype.CursorMoved() dict "{{{3
     let lnum = line('.')
-    " TLogVAR line, len(line)
-    " TLogVAR col('$'), self.indent, mode()
-    if col('$') - 1 < self.indent
-        let line = getline(lnum)
-        let diff = self.indent - len(line)
-        let line .= repeat(' ', diff)
-        let vimform_modification = s:vimform_modification
-        call self.SetModifiable(-1)
-        call setline(lnum, line)
-        let s:vimform_modification = vimform_modification
+    let line = getline(lnum)
+    " TLogVAR line
+    " echom "DBG ". (line =~ s:special_line_rx)
+    if line =~ s:special_line_rx
+        call self.NextField('w', 0)
+    else
+        " TLogVAR line, len(line)
+        " TLogVAR col('$'), self.indent, mode()
+        if col('$') - 1 < self.indent
+            let diff = self.indent - len(line)
+            let line .= repeat(' ', diff)
+            let vimform_modification = s:vimform_modification
+            call self.SetModifiable(-1)
+            call setline(lnum, line)
+            let s:vimform_modification = vimform_modification
+        endif
+        let field = self.GetCurrentFieldName()
+        " TLogVAR &modifiable, field, col('.'), self.indent
+        if !empty(field) && col('.') <= self.indent
+            call cursor(lnum, self.indent + 1)
+        endif
+        call self.SetModifiable()
     endif
-    let field = self.GetCurrentFieldName()
-    " TLogVAR &modifiable, field, col('.'), self.indent
-    if !empty(field) && col('.') <= self.indent
-        call cursor(lnum, self.indent + 1)
-    endif
-    call self.SetModifiable()
 endf
 
 
