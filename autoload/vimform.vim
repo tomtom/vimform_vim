@@ -513,20 +513,26 @@ function! g:vimform#prototype.GetField(name, ...) dict "{{{3
                     let lines = getline(start, end)
                     call map(lines, 'strpart(v:val, self.indent)')
                     " TLogVAR lines
-                    let join = get(def, 'join', ' ')
+                    if has_key(def, 'join')
+                        let ljoin = def.join
+                        let pjoin = def.join
+                    else
+                        let ljoin = get(def, 'joinlines', ' ')
+                        let pjoin = get(def, 'joinparas', "\n")
+                    endif
                     let out = []
                     for line in lines
                         if line =~ '\S'
                             if len(out) > 0 && out[-1] != "\n"
-                                call add(out, join)
+                                call add(out, ljoin)
                             endif
                             call add(out, line)
                         elseif len(out) > 0
-                            call add(out, "\n")
+                            call add(out, pjoin)
                         endif
                     endfor
-                    " TLogVAR out
                     let value = join(out, '')
+                    " TLogVAR ljoin, pjoin, out, value
                     if type == 'checkbox'
                         let value = value =~ 'X'
                     endif
