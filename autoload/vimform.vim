@@ -362,7 +362,11 @@ endf
 
 function! g:vimform#prototype.SetModifiable(...) dict "{{{3
     if a:0 >= 1
-        let s:vimform_modification = a:1
+        if a:1 >= 0
+            let s:vimform_modification += a:1
+        else
+            let s:vimform_modification = a:1
+        endif
     endif
     if s:vimform_modification < 0
         let modifiable = 1
