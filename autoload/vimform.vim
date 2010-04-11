@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2008-07-16.
 " @Last Change: 2010-04-11.
-" @Revision:    0.0.903
+" @Revision:    0.0.904
 
 let s:save_cpo = &cpo
 set cpo&vim
@@ -419,7 +419,10 @@ endf
 function! g:vimform#prototype.Key(key) dict "{{{3
     " TLogVAR a:key
     let key = a:key
-    if a:key =~ '^[ai]$'
+    let type = self.GetCurrentFieldType()
+    if type == 'checkbox'
+        let key = ''
+    elseif a:key =~ '^[ai]$'
         let ccol = col('.')
         let ecol = col('$')
         " TLogVAR ccol, ecol, self.indent
