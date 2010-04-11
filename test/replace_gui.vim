@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2008-07-16.
 " @Last Change: 2010-04-11.
-" @Revision:    106
+" @Revision:    107
 
 
 let replace_form = vimform#SimpleForm()
@@ -21,7 +21,6 @@ let replace_form.fields = [
 
 function! replace_form.Do_Submit() dict "{{{3
     let search = self.values['Search']
-    TLogVAR search
     if !empty(search)
         let flags = map(["Replace all", "Case-sensitive", "Confirm", "Ignore errors"], 'self.values[v:val]')
         exec printf('%%s/%s/%s/%s',

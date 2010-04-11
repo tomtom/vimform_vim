@@ -87,8 +87,6 @@ In order to install the vba, open the vba file in VIM and type: >
 
 See :help vimball for details.
 
-This script requires hookcursormoved (vimscript #2037) to be installed.
-
 Also available via git: http://github.com/tomtom/vimform_vim/
 
 

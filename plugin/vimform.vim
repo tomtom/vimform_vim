@@ -3,9 +3,9 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2008-07-16.
-" @Last Change: 2010-04-09.
-" @Revision:    3
-" GetLatestVimScripts: 0 0 vimform.vim
+" @Last Change: 2010-04-11.
+" @Revision:    4
+" GetLatestVimScripts: 3051 0 vimform.vim
 
 if &cp || exists("loaded_vimform")
     finish

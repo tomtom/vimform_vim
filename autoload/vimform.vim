@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2008-07-16.
 " @Last Change: 2010-04-11.
-" @Revision:    0.0.904
+" @Revision:    0.0.1022
 
 let s:save_cpo = &cpo
 set cpo&vim
@@ -54,6 +54,7 @@ if !exists('g:vimform#prototype')
                 \ 'values': {},
                 \ 'fields': [],
                 \ '_fields': {},
+                \ 'mapargs': {},
                 \ 'header': [],
                 \ 'footer': [
                 \   'Press <F1> for help'
@@ -285,6 +286,7 @@ function! g:vimform#prototype.NextField(flags, insertmode) dict "{{{3
     if lnum && getline(lnum) =~ frx
         call cursor(lnum, self.indent + 1)
         let type = self.GetCurrentFieldType()
+        " TLogVAR type, col('.'), col('$')
         if type == 'checkbox'
             call s:Feedkeys('l', 1)
         elseif col('.') == col('$') - 1
@@ -325,43 +327,43 @@ function! g:vimform#prototype.GetCurrentFieldType() dict "{{{3
 endf
 
 
-function! s:Modifiable() "{{{3
-    let s:vimform_modification = 1
-    setlocal modifiable
-endf
-
-
 function! s:Feedkeys(keys, level) "{{{3
-    " TLogVAR a:keys
-    call s:Modifiable()
-    call feedkeys(a:keys, 'n')
+    call b:vimform.SetModifiable(a:level)
+    " TLogVAR a:keys, a:level, col('.'), col('$'), &modifiable
+    call feedkeys(a:keys, 't')
 endf
 
 
 function! g:vimform#prototype.CursorMoved() dict "{{{3
     let lnum = line('.')
-    let line = getline(lnum)
-    let field = self.GetCurrentFieldName()
     " TLogVAR line, len(line)
-    if line !~ '\S' && len(line) < self.indent
-        let s:vimform_modification = 2
-        setlocal modifiable
-        call setline(lnum, repeat(' ', self.indent))
-        " setlocal nomodifiable
-        let s:vimform_modification = 0
+    " TLogVAR col('$'), self.indent, mode()
+    if col('$') - 1 < self.indent
+        let line = getline(lnum)
+        let diff = self.indent - len(line)
+        let line .= repeat(' ', diff)
+        let vimform_modification = s:vimform_modification
+        call self.SetModifiable(-1)
+        call setline(lnum, line)
+        let s:vimform_modification = vimform_modification
     endif
-    call self.SetModifiable()
+    let field = self.GetCurrentFieldName()
+    " TLogVAR &modifiable, field, col('.'), self.indent
     if !empty(field) && col('.') <= self.indent
         call cursor(lnum, self.indent + 1)
     endif
+    call self.SetModifiable()
 endf
 
 
-function! g:vimform#prototype.SetModifiable() dict "{{{3
-    if s:vimform_modification == 2
+function! g:vimform#prototype.SetModifiable(...) dict "{{{3
+    if a:0 >= 1
+        let s:vimform_modification = a:1
+    endif
+    if s:vimform_modification < 0
         let modifiable = 1
-    elseif s:vimform_modification == 1
-        let s:vimform_modification = 0
+    elseif s:vimform_modification > 0
+        let s:vimform_modification -= 1
         let modifiable = 1
     else
         let line = getline('.')
@@ -399,6 +401,16 @@ function! g:vimform#prototype.SetModifiable() dict "{{{3
 endf
 
 
+function! g:vimform#prototype.SaveMapargs(...) dict "{{{3
+    " TLogVAR a:000
+    for map in a:000
+        let arg = maparg(map)
+        let arg = eval('"'. escape(substitute(arg, '<', '\\<', 'g'), '"') .'"')
+        let self.mapargs[map] = arg
+    endfor
+endf
+
+
 function! g:vimform#prototype.SpecialKey(key) dict "{{{3
     let view = winsaveview()
     try
@@ -411,7 +423,9 @@ function! g:vimform#prototype.SpecialKey(key) dict "{{{3
     if type == 'checkbox'
         call s:ToggleCheckbox()
     elseif !empty(key)
-        call feedkeys(key, 't')
+        let map = get(self.mapargs, key, key)
+        " TLogVAR map
+        call feedkeys(map, 'n')
     endif
 endf
 
@@ -419,33 +433,83 @@ endf
 function! g:vimform#prototype.Key(key) dict "{{{3
     " TLogVAR a:key
     let key = a:key
+    let ccol = col('.')
+    let ecol = col('$')
+    let lnum = line('.')
     let type = self.GetCurrentFieldType()
+    let frx  = self.GetFieldsRx()
     if type == 'checkbox'
         let key = ''
     elseif a:key =~ '^[ai]$'
-        let ccol = col('.')
-        let ecol = col('$')
         " TLogVAR ccol, ecol, self.indent
         if a:key == 'a' && ccol < self.indent
             let key = ''
         elseif a:key == 'i' && ccol <= self.indent
             let key = ''
         elseif ccol >= self.indent
-            call s:Modifiable()
+            call self.SetModifiable(1)
         endif
-    elseif a:key == 'dd'
-        let frx = self.GetFieldsRx()
-        let line = getline('.')
+    endif
+    return key
+endf
+
+
+function! g:vimform#prototype.Key_dd() dict "{{{3
+    let type = self.GetCurrentFieldType()
+    if type == 'checkbox'
+        let key = ''
+    else
+        let key  = 'dd'
+        let lnum = line('.')
+        let line = getline(lnum)
+        let frx  = self.GetFieldsRx()
         if line =~ frx
             if empty(strpart(line, self.indent))
                 let key = ''
             else
                 let key = self.indent .'|d$'
             endif
-        else
+        elseif lnum < line('$') && getline(lnum + 1) =~ frx
             let key .= 'k'
         endif
-        call s:Modifiable()
+        call self.SetModifiable(1)
+    endif
+    return key
+endf
+
+
+function! g:vimform#prototype.Key_BS() dict "{{{3
+    let type = self.GetCurrentFieldType()
+    " TLogVAR type, mode()
+    if type == 'checkbox'
+        let key = ''
+    else
+        let min = self.indent + (mode() == 'n')
+        if col('.') <= min
+            let key = ''
+        else
+            let key = mode() == 'n' ? 'X' : "\<bs>"
+            call self.SetModifiable(1)
+        endif
+        " TLogVAR col('.'), self.indent, min, mode(), key
+    endif
+    return key
+endf
+
+
+function! g:vimform#prototype.Key_DEL() dict "{{{3
+    let type = self.GetCurrentFieldType()
+    if type == 'checkbox'
+        let key = ''
+    else
+        let lnum = line('.')
+        let frx  = self.GetFieldsRx()
+        if col('.') >= col('$') && (lnum == line('$') || getline(lnum + 1) =~ frx)
+            let key = ''
+        else
+            let key = "\<del>"
+            call self.SetModifiable(1)
+        endif
     endif
     return key
 endf
@@ -459,11 +523,9 @@ function! s:ToggleCheckbox() "{{{3
         let value = ' '
     endif
     " TLogVAR value
-    let s:vimform_modification = 2
-    call b:vimform.SetModifiable()
+    call b:vimform.SetModifiable(1)
     let line = substitute(line, '\[\zs.\ze\]$', value, '')
     call setline('.', line)
-    let s:vimform_modification = 0
 endf
 
 
