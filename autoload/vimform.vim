@@ -56,9 +56,10 @@ if !exists('g:vimform#prototype')
                 \ 'fields': [],
                 \ '_fields': {},
                 \ 'mapargs': {},
-                \ 'header': [],
-                \ 'footer': [
+                \ 'header': [
                 \   '<F1>:help; <F5>:redraw; <TAB>:next field; <C-CR>:submit'
+                \ ],
+                \ 'footer': [
                 \ ]}
 endif
 
