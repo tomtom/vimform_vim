@@ -36,6 +36,9 @@ This will create a form, which looks like this: >
       Private: [ ]
      Business: [X]
 
+Check out further examples on:
+http://github.com/tomtom/vimform_vim/tree/master/test/
+
 The following field types are currently supported:
 
     - text fields
