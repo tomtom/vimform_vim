@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2008-07-16.
 " @Last Change: 2010-04-12.
-" @Revision:    0.0.1256
+" @Revision:    0.0.1267
 
 let s:save_cpo = &cpo
 set cpo&vim
@@ -244,9 +244,11 @@ function! g:vimform#prototype.Validate() dict "{{{3
     let invalid_values = filter(copy(self.values), '!self.ValidateField(v:key, v:val)')
     if !empty(invalid_values)
         echohl WarningMsg
-        let error_rx = []
+        let msgs = []
+        let error_rx = map(keys(invalid_values), 'self.GetFieldRx(v:val)')
+        exec '3match Error /'. escape(join(error_rx, '\|'), '/') .'/'
+        redraw
         for [field, value] in items(invalid_values)
-            call add(error_rx, self.GetFieldRx(field))
             let def = self._fields[field]
             let msg = 'Invalid value for '. field .': '. string(value)
             if len(def) > 1 && has_key(def, 'message')
@@ -254,8 +256,10 @@ function! g:vimform#prototype.Validate() dict "{{{3
             endif
             echom msg
         endfor
+        echohl MoreMsg
+        echo "Press any KEY to continue"
         echohl NONE
-        exec '3match Error /'. escape(join(error_rx, '\|'), '/') .'/'
+        call getchar()
         call search(error_rx[0], 'ew')
         call s:Feedkeys('a', 1)
         return 0
