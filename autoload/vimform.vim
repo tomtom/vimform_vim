@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2008-07-16.
 " @Last Change: 2010-04-12.
-" @Revision:    0.0.1267
+" @Revision:    0.0.1276
 
 let s:save_cpo = &cpo
 set cpo&vim
@@ -477,37 +477,43 @@ function! g:vimform#prototype.SaveMapargs(...) dict "{{{3
 endf
 
 
-function! vimform#PumKey(key) "{{{3
-    let key = a:key
+" function! vimform#PumKey(key) "{{{3
+"     " TLogVAR a:key
+"     let key = a:key
+"     if !pumvisible()
+"         let self = b:vimform
+"         call self.SetModifiable(2)
+"         let name = self.GetCurrentFieldName()
+"         let type = get(self._fields[name], 'type', 'text')
+"         if type == 'checkbox'
+"             let key .= "\<esc>"
+"         elseif type == 'singlechoice'
+"             let key .= "\<esc>"
+"         endif
+"     endif
+"     return key
+" endf
+
+
+function! vimform#SpecialInsertKey(key, pumkey, prepend) "{{{3
+    " TLogVAR a:key, a:prepend
     if pumvisible()
+        return a:pumkey
+    else
         let self = b:vimform
-        call self.SetModifiable(2)
         let name = self.GetCurrentFieldName()
         let type = get(self._fields[name], 'type', 'text')
+        let key = a:key
         if type == 'checkbox'
-            let key .= "\<esc>"
+            let key = "\<esc>"
         elseif type == 'singlechoice'
-            let key .= "\<esc>"
+            let key = "\<esc>"
         endif
+        if a:prepend
+            let key = a:key . key
+        endif
+        return key
     endif
-    return key
-endf
-
-
-function! vimform#SpecialInsertKey(key, prepend) "{{{3
-    let self = b:vimform
-    let name = self.GetCurrentFieldName()
-    let type = get(self._fields[name], 'type', 'text')
-    let key = a:key
-    if type == 'checkbox'
-        let key = "\<esc>"
-    elseif type == 'singlechoice'
-        let key = "\<esc>"
-    endif
-    if a:prepend
-        let key = a:key . key
-    endif
-    return key
 endf
 
 
