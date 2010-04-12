@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-04-09.
-" @Last Change: 2010-04-11.
-" @Revision:    92
+" @Last Change: 2010-04-12.
+" @Revision:    117
 
 if exists("b:did_ftplugin")
     finish
@@ -23,10 +23,23 @@ setlocal ballooneval
 setlocal balloonexpr=vimform#Balloon()
 
 let b:vimform.SaveMapargs('<cr>', ' ')
-noremap <buffer> <silent> <cr> :call b:vimform.SpecialKey('<lt>cr>')<cr>
-noremap <buffer> <silent> <space> :call b:vimform.SpecialKey(' ')<cr>
-noremap <buffer> <silent> <LeftMouse> <LeftMouse>:call b:vimform.SpecialKey('', '')<cr>
-inoremap <buffer> <silent> <LeftMouse> <LeftMouse><c-\><c-n>:call b:vimform.SpecialKey('', '')<cr>
+noremap <buffer> <silent> <cr> :call b:vimform.SpecialKey('<lt>cr>', 0)<cr>
+noremap <buffer> <silent> <space> :call b:vimform.SpecialKey(' ', 0)<cr>
+noremap <buffer> <silent> <LeftMouse> <LeftMouse>:call b:vimform.SpecialKey('', 0)<cr>
+
+" inoremap <buffer> <silent> <LeftMouse> <LeftMouse><c-\><c-n>:call b:vimform.SpecialKey('', 1)<cr>
+" inoremap <buffer> <silent> <space> <c-\><c-n>:call b:vimform.SpecialKey(' ', 1)<cr>
+" inoremap <buffer> <silent> <cr> <c-\><c-n>:call b:vimform.SpecialKey('<lt>cr>', 1)<cr>
+inoremap <expr> <buffer> <silent> <LeftMouse> vimform#SpecialInsertKey("\<lt>LeftMouse>", 1)
+inoremap <expr> <buffer> <silent> <space> vimform#SpecialInsertKey(' ', 0)
+inoremap <expr> <buffer> <silent> <cr> vimform#SpecialInsertKey("\<lt>cr>", 0)
+
+imap <expr> <buffer> <c-y> vimform#PumKey("\<c-y>")
+imap <expr> <buffer> <c-e> vimform#PumKey("\<c-e>")
+" imap <expr> <buffer> <up> vimform#PumKey("\<up>")
+" imap <expr> <buffer> <down> vimform#PumKey("\<down>")
+" imap <expr> <buffer> <c-n> vimform#PumKey("\<c-n>")
+" imap <expr> <buffer> <c-p> vimform#PumKey("\<c-p>")
 
 noremap <buffer> <f5> :VimformReset<cr>
 noremap <buffer> <f1> :help vimform-keys<cr>

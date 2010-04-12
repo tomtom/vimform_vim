@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2008-07-16.
-" @Last Change: 2010-04-10.
-" @Revision:    0.0.24
+" @Last Change: 2010-04-12.
+" @Revision:    0.0.32
 
 if version < 600
     syntax clear
@@ -18,19 +18,15 @@ else
 endif
 
 
-syn match VimformLabel /[^][:space:]][^]:]\{-}\s*\ze:/ nextgroup=VimformField
-syn region VimformField matchgroup=Comment start=/:´/ end=/´/ skip=/\\´/
-syn match VimformTitle /^.\{-}\~$/
 syn match VimformSeparator /^_\+ .\{-} _\+$/
 syn match VimformComment /^" .*$/
 syn match VimformButton /<<.\{-}>>/ contained containedin=VimformControls
 syn match VimformControls /^| .* |$/ contains=VimformButton
+syn match VimformLabel /^ \+.\{-}\ze: /
 
 HiLink VimformLabel Constant 
-HiLink VimformField Statement
 HiLink VimformButton Special
 HiLink VimformControls Identifier
-HiLink VimformTitle PreProc
 HiLink VimformSeparator PreProc
 HiLink VimformComment Comment
 

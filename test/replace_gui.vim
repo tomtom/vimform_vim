@@ -3,15 +3,15 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2008-07-16.
-" @Last Change: 2010-04-11.
-" @Revision:    117
+" @Last Change: 2010-04-12.
+" @Revision:    123
 
 
 let replace_form = vimform#SimpleForm()
 let replace_form.name = "Search & Replace"
 let replace_form.options = 'tw=0'
 let replace_form.fields = [
-            \ ['Search', {'tooltip': 'A regular expression', 'join': '\n'}],
+            \ ['Search', {'tooltip': 'A regular expression', 'join': '\n', 'validate': 'ValidateRegexp(%s)'}],
             \ ['Replace', {'tooltip': 'The replacement expression'}],
             \ ['--- Options'],
             \ ['Range', {'value': '%'}],
@@ -31,6 +31,16 @@ function! replace_form.Do_Submit() dict "{{{3
                     \ join(flags, ''))
     endif
 endf
+
+function! ValidateRegexp(rx) "{{{3
+    try
+        call match("x", a:rx)
+        return 1
+    catch
+        return 0
+    endtry
+endf
+
 
 call replace_form.Split()
 

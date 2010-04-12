@@ -35,10 +35,14 @@ This will create a form, which looks like this: >
       Private: [ ]
      Business: [X]
 
+Check out further examples on:
+http://github.com/tomtom/vimform_vim/tree/master/test/
+
 The following field types are currently supported:
 
     - text fields
     - check boxes
+    - single choice/drop-down lists
 
                                                     *vimform-keys*
 The following key maps can be used to navigate through forms:
@@ -68,10 +72,14 @@ The following key maps can be used to navigate through forms:
 <LeftMouse>
 <space>
 <cr>            If the cursor is located over a checkbox, toggle that 
-                check box
+                check box. If the cursor is over a drop-down list, open the 
+                list.
 
 a
 i               Switch to insert mode.
+
+<c-n> <c-p> <c-y> <c-e>
+                Navigate drop-down lists. See also |ins-completion|.
 
 
 -----------------------------------------------------------------------

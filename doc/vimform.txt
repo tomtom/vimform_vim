@@ -43,6 +43,7 @@ The following field types are currently supported:
 
     - text fields
     - check boxes
+    - single choice/drop-down lists
 
                                                     *vimform-keys*
 The following key maps can be used to navigate through forms:
@@ -72,10 +73,14 @@ The following key maps can be used to navigate through forms:
 <LeftMouse>
 <space>
 <cr>            If the cursor is located over a checkbox, toggle that 
-                check box
+                check box. If the cursor is over a drop-down list, open the 
+                list.
 
 a
 i               Switch to insert mode.
+
+<c-n> <c-p> <c-y> <c-e>
+                Navigate drop-down lists. See also |ins-completion|.
 
 
 -----------------------------------------------------------------------
@@ -93,13 +98,16 @@ Also available via git: http://github.com/tomtom/vimform_vim/
 ========================================================================
 Contents~
 
-        vimform#New ............ |vimform#New()|
-        vimform#SimpleForm ..... |vimform#SimpleForm()|
-        :VimformReset .......... |:VimformReset|
-        g:vimform#prototype .... |g:vimform#prototype|
-        vimform#Balloon ........ |vimform#Balloon()|
-        vimform#Complete1 ...... |vimform#Complete1()|
-        vimform#Complete ....... |vimform#Complete()|
+        vimform#New .................... |vimform#New()|
+        vimform#SimpleForm ............. |vimform#SimpleForm()|
+        :VimformReset .................. |:VimformReset|
+        g:vimform#prototype ............ |g:vimform#prototype|
+        vimform#PumKey ................. |vimform#PumKey()|
+        vimform#SpecialInsertKey ....... |vimform#SpecialInsertKey()|
+        vimform#Balloon ................ |vimform#Balloon()|
+        vimform#Complete1 .............. |vimform#Complete1()|
+        vimform#Complete ............... |vimform#Complete()|
+        vimform#CompleteSingleChoice ... |vimform#CompleteSingleChoice()|
 
 
 ========================================================================
@@ -133,14 +141,23 @@ g:vimform#prototype#Show(?cmd = "split")
     cmd should create a new buffer. By default, the new buffer will be 
     shown in a split view.
 
-                                                    *vimform#Balloon()*
+                                                    *vimform#PumKey()*
 g:vimform#prototype.GetCurrentFieldName(?pos = '.') dict "{{{3
+
+                                                    *vimform#SpecialInsertKey()*
+vimform#SpecialInsertKey(key, prepend)
+
+                                                    *vimform#Balloon()*
+vimform#Balloon()
 
                                                     *vimform#Complete1()*
 vimform#Complete1()
 
                                                     *vimform#Complete()*
 vimform#Complete(findstart, base)
+
+                                                    *vimform#CompleteSingleChoice()*
+vimform#CompleteSingleChoice(findstart, base)
 
 
 
