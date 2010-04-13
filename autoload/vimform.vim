@@ -40,6 +40,15 @@ command! -bang VimformReset if !exists('b:vimform')
             \ | endif
 
 
+if !exists('g:vimform#forms')
+    let g:vimform#forms = {}   "{{{2
+endif
+
+
+if !exists('g:vimform#view')
+    let g:vimform#view = "split"   "{{{2
+endif
+
 
 if !exists('g:vimform#prototype')
     " The default form tepmlate.
@@ -885,6 +894,33 @@ function! vimform#CompleteSingleChoice(findstart, base) "{{{3
         call self.SetModifiable(1)
         " return filter(copy(s:vimform_list), 'v:val =~ rx')
         return s:vimform_list
+    endif
+endf
+
+
+function! vimform#CommandComplete(ArgLead, CmdLine, CursorPos) "{{{3
+    if !s:done_commands
+        let s:done_commands = 1
+        runtime! autoload/vimform/commands/*.vim
+    endif
+    let commands = copy(g:vimform#forms)
+    " TLogVAR commands
+    if !empty(a:ArgLead)
+        call filter(commands, 'a:ArgLead =~ v:val.rx')
+    endif
+    " TLogVAR commands
+    return keys(commands)
+endf
+
+
+function! vimform#Command(cmd) "{{{3
+    let cmds = vimform#CommandComplete(a:cmd, '', 0)
+    " TLogVAR cmds
+    if len(cmds) == 1
+        let form = g:vimform#forms[cmds[0]]
+        call form.Show(g:vimform#view)
+    else
+        echoerr "Vimform: Unknown or ambivalent command: ". a:cmd
     endif
 endf
 
