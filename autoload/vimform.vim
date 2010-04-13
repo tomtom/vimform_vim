@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2008-07-16.
-" @Last Change: 2010-04-12.
-" @Revision:    0.0.1276
+" @Last Change: 2010-04-13.
+" @Revision:    0.0.1306
 
 let s:save_cpo = &cpo
 set cpo&vim
@@ -73,6 +73,13 @@ if !exists('g:vimform#prototype')
 endif
 
 
+let s:vimform_modification = 0
+let s:indent_plus = 3
+let s:skip_line_rx = '\V\^\(" \.\+\|_\+ \.\{-} _\+\)\$'
+let s:special_line_rx = s:skip_line_rx .'\V\|\^\(| \.\{-} |\)\$'
+let s:done_commands = 0
+
+
 " Show the form in a split window.
 function! g:vimform#prototype.Split() dict "{{{3
     call self.Show('split')
@@ -84,8 +91,8 @@ endf
 " cmd should create a new buffer. By default, the new buffer will be 
 " shown in a split view.
 function! g:vimform#prototype.Show(...) dict "{{{3
-    let cmd = a:0 >= 1 ? a:1 : 'split'
-    exec cmd fnameescape(self.name)
+    let cmd = a:0 >= 1 ? a:1 : g:vimform#view
+    silent exec cmd fnameescape(self.name)
     let self.bufnr = bufnr('%')
     let b:vimform = self.Setup()
     setlocal filetype=vimform
@@ -129,14 +136,10 @@ function! g:vimform#prototype.Reset(vanilla) dict "{{{3
 endf
 
 
-let s:vimform_modification = 0
-let s:indent_plus = 3
-let s:skip_line_rx = '\V\^\(" \.\+\|_\+ \.\{-} _\+\)\$'
-let s:special_line_rx = s:skip_line_rx .'\V\|\^\(| \.\{-} |\)\$'
-
 function! g:vimform#prototype.Display() dict "{{{3
     setlocal modifiable
-    1,$delete
+    " TLogVAR line('$')
+    %delete
 
     let width = winwidth(0) - &foldcolumn - 4
 
@@ -335,7 +338,7 @@ endf
 
 
 function! s:Insertmode() "{{{3
-    call s:Feedkeys(s:AppendOrInsert(), 1)
+    call s:Feedkeys(s:AppendOrInsert(), 0)
 endf
 
 
@@ -424,10 +427,10 @@ endf
 
 function! g:vimform#prototype.SetModifiable(...) dict "{{{3
     if a:0 >= 1
-        if a:1 > 0
+        if a:1 >= 0
             let s:vimform_modification += a:1
-        elseif a:1 == 0
-            let s:vimform_modification = 0
+        " elseif a:1 == 0
+        "     let s:vimform_modification = 0
         else
             let s:vimform_modification = a:1
         endif
@@ -630,7 +633,8 @@ function! g:vimform#prototype.Key_BS() dict "{{{3
     elseif type == 'singlechoice'
         let key = ''
     else
-        let min = self.indent + (mode() == 'n')
+        let min = self.indent + 1
+        " (mode() == 'n')
         if col('.') <= min
             let key = ''
         else
