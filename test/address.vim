@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2008-07-16.
-" @Last Change: 2010-04-12.
-" @Revision:    95
+" @Last Change: 2010-04-14.
+" @Revision:    96
 
 
 let g:planets = ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptun', 'Pluto FTW']
@@ -16,6 +16,7 @@ let form.fields = [
             \ ['Planet', {'value': 'Earth', 'type': 'singlechoice', 'list': g:planets}],
             \ ['Phone',   {'validate': '%s =~ ''^[0-9()+-]*$''', 'message': 'Must be a phone number'}],
             \ ['E-Mail', {'validate': '%s =~ ''^\([a-zA-Z.]\+@[a-zA-Z]\+\.[a-zA-Z.]\+\)\?$''', 'message': 'Must be an e-mail'}],
+            \ ['Picture', {'type': 'file'}],
             \ ['Private', {'value': 0, 'type': 'checkbox'}],
             \ ['Business', {'value': 1, 'type': 'checkbox'}],
             \ ]
