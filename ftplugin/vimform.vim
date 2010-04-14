@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-04-09.
-" @Last Change: 2010-04-12.
-" @Revision:    119
+" @Last Change: 2010-04-14.
+" @Revision:    120
 
 if exists("b:did_ftplugin")
     finish
@@ -34,8 +34,8 @@ inoremap <expr> <buffer> <silent> <LeftMouse> vimform#SpecialInsertKey("\<lt>Lef
 inoremap <expr> <buffer> <silent> <space> vimform#SpecialInsertKey(' ', "\<c-y>", 0)
 inoremap <expr> <buffer> <silent> <cr> vimform#SpecialInsertKey("\<lt>cr>", "\<c-y>", 0)
 
-" imap <expr> <buffer> <c-y> vimform#PumKey("\<c-y>")
-" imap <expr> <buffer> <c-e> vimform#PumKey("\<c-e>")
+imap <expr> <buffer> <c-y> vimform#PumKey("\<c-y>")
+imap <expr> <buffer> <c-e> vimform#PumKey("\<c-e>")
 " imap <expr> <buffer> <up> vimform#PumKey("\<up>")
 " imap <expr> <buffer> <down> vimform#PumKey("\<down>")
 " imap <expr> <buffer> <c-n> vimform#PumKey("\<c-n>")

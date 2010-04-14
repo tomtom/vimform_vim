@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2008-07-16.
-" @Last Change: 2010-04-13.
-" @Revision:    0.0.1306
+" @Last Change: 2010-04-14.
+" @Revision:    0.0.1466
 
 let s:save_cpo = &cpo
 set cpo&vim
@@ -73,11 +73,35 @@ if !exists('g:vimform#prototype')
 endif
 
 
+if !exists('g:vimform#widgets')
+    let g:vimform#widgets = {}   "{{{2
+    runtime! autoload/vimform/widgets/*.vim
+endif
+
+
+
 let s:vimform_modification = 0
 let s:indent_plus = 3
 let s:skip_line_rx = '\V\^\(" \.\+\|_\+ \.\{-} _\+\)\$'
 let s:special_line_rx = s:skip_line_rx .'\V\|\^\(| \.\{-} |\)\$'
 let s:done_commands = 0
+
+
+function! g:vimform#prototype.Delegate(name, method, ...) dict "{{{3
+    " TLogVAR "Delegate", a:name, a:method, a:000
+    if !empty(a:name)
+        let field = self._fields[a:name]
+        return call(field[a:method], [self] + a:000, field)
+    endif
+endf
+
+
+function! g:vimform#prototype.DelegateCurrentField(method, ...) dict "{{{3
+    " TLogVAR "DelegateCurrentField", a:method, a:000
+    " TLogVAR keys(self)
+    let name = self.GetCurrentFieldName()
+    return call(self.Delegate, [name, a:method] + a:000, self)
+endf
 
 
 " Show the form in a split window.
@@ -112,10 +136,13 @@ function! g:vimform#prototype.Setup() dict "{{{3
         let name = get(def, 0)
         if name !~ '^-'
             let def1 = get(def, 1, {})
+            let type = get(def1, 'type', 'text')
+            " TLogVAR name, type
+            call extend(def1, g:vimform#widgets[type], 'keep')
             let self._fields[name] = def1
         endif
     endfor
-    
+
     let self._buttons = {}
     for button in self.buttons
         let name = self.GetButtonLabel(button)
@@ -160,13 +187,7 @@ function! g:vimform#prototype.Display() dict "{{{3
             let def = get(def0, 1, {})
             let type = get(def, 'type', 'text')
             let value = get(self.values, name, get(def, 'value', ''))
-            if type == 'checkbox'
-                let text = printf('[%s]', empty(value) ? ' ' : 'X')
-            elseif type == 'singlechoice'
-                let text = printf('%s', value)
-            else
-                let text = value
-            endif
+            let text = self.Delegate(name, 'Format', value)
             let line = printf(fmt, name, text)
         endif
         call append('$', line)
@@ -273,7 +294,7 @@ function! g:vimform#prototype.Validate() dict "{{{3
         echohl NONE
         call getchar()
         call search(error_rx[0], 'ew')
-        call s:Feedkeys('a', 1)
+        call vimform#Feedkeys('a', 1)
         return 0
     else
         3match none
@@ -283,14 +304,7 @@ endf
 
 
 function! g:vimform#prototype.ValidateField(field, value) dict "{{{3
-    let def = self._fields[a:field]
-    let validate = get(def, 'validate', '')
-    if empty(validate)
-        let type = get(def, 'type', 'text')
-        if type == 'singlechoice'
-            let validate = 'index(get(def, "list", []), %s) != -1'
-        endif
-    endif
+    let validate = self.Delegate(a:field, 'GetValidate')
     if empty(validate)
         return 1
     else
@@ -316,29 +330,22 @@ function! g:vimform#prototype.NextField(flags, in_insertmode, to_insertmode) dic
     endif
     let lnum = search(rx, 'e'. a:flags)
     if lnum && getline(lnum) =~ frx
+        " TLogVAR lnum
         call cursor(lnum, self.indent + 1)
-        let type = self.GetCurrentFieldType()
-        " TLogVAR type, col('.'), col('$')
-        if type == 'checkbox'
-            call s:Feedkeys('l', 0)
-        elseif type == 'singlechoice'
-            " call s:Feedkeys('$', 0)
-        elseif a:to_insertmode
-            call s:Insertmode()
-        endif
+        call self.DelegateCurrentField('SelectField', a:to_insertmode)
     endif
 endf
 
 
-function! s:AppendOrInsert() "{{{3
+function! vimform#AppendOrInsert() "{{{3
     let val = col('.') == col('$') - 1 ? 'a' : 'i'
     " TLogVAR col('.'), col('$'), val
     return val
 endf
 
 
-function! s:Insertmode() "{{{3
-    call s:Feedkeys(s:AppendOrInsert(), 0)
+function! vimform#Insertmode() "{{{3
+    call vimform#Feedkeys(vimform#AppendOrInsert(), 0)
 endf
 
 
@@ -364,18 +371,23 @@ function! g:vimform#prototype.GetCurrentFieldName(...) dict "{{{3
 endf
 
 
+function! g:vimform#prototype.GetFieldType(name) dict "{{{3
+    return get(self._fields[a:name], 'type', 'text')
+endf
+
+
 function! g:vimform#prototype.GetCurrentFieldType() dict "{{{3
     let field = self.GetCurrentFieldName()
     if empty(field)
         return ''
     else
-        let type = get(self._fields[field], 'type', 'text')
+        let type = self.GetFieldType(field)
         return type
     endif
 endf
 
 
-function! s:Feedkeys(keys, level) "{{{3
+function! vimform#Feedkeys(keys, level) "{{{3
     call b:vimform.SetModifiable(a:level)
     " TLogVAR a:keys, a:level, col('.'), col('$'), &modifiable
     call feedkeys(a:keys, 't')
@@ -399,26 +411,7 @@ function! g:vimform#prototype.CursorMoved() dict "{{{3
             call setline(lnum, line)
             " let s:vimform_modification = vimform_modification
         endif
-        let field = self.GetCurrentFieldName()
-        if !empty(field)
-            let type = get(self._fields[field], 'type', 'text')
-            " TLogVAR field, type
-            if type == 'checkbox'
-                if mode() == 'i'
-                    call feedkeys("\<esc>", 't')
-                endif
-                call cursor(lnum, self.indent + 2)
-                " call self.SetModifiable()
-            elseif type == 'singlechoice'
-                if mode() == 'i'
-                    call feedkeys("\<esc>$", 't')
-                endif
-            else
-                if col('.') <= self.indent
-                    call cursor(lnum, self.indent + 1)
-                endif
-            endif
-        endif
+        call self.DelegateCurrentField('SetCursorMoved', mode() == 'i', lnum)
         " TLogVAR &modifiable, field, col('.'), self.indent
         call self.SetModifiable()
     endif
@@ -455,16 +448,7 @@ function! g:vimform#prototype.SetModifiable(...) dict "{{{3
                 if col('.') <= self.indent
                     let modifiable = 0
                 else
-                    let type = get(self._fields[field], 'type', 'text')
-                    if type == 'checkbox'
-                        let modifiable = 0
-                        " let modifiable = getline('.')[col('.')] == ']'
-                        " call feedkeys("\<c-\>\<c-o>", 0)
-                    elseif type == 'singlechoice'
-                        let modifiable = 0
-                    else
-                        let modifiable = 1
-                    endif
+                    let modifiable = self._fields[field].modifiable
                 endif
             endif
         endif
@@ -489,22 +473,17 @@ function! g:vimform#prototype.SaveMapargs(...) dict "{{{3
 endf
 
 
-" function! vimform#PumKey(key) "{{{3
-"     " TLogVAR a:key
-"     let key = a:key
-"     if !pumvisible()
-"         let self = b:vimform
-"         call self.SetModifiable(2)
-"         let name = self.GetCurrentFieldName()
-"         let type = get(self._fields[name], 'type', 'text')
-"         if type == 'checkbox'
-"             let key .= "\<esc>"
-"         elseif type == 'singlechoice'
-"             let key .= "\<esc>"
-"         endif
-"     endif
-"     return key
-" endf
+function! vimform#PumKey(key) "{{{3
+    " TLogVAR a:key
+    if pumvisible()
+        let self = b:vimform
+        call self.SetModifiable(1)
+        let key = self.DelegateCurrentField('GetPumKey', a:key)
+        return key
+    else
+        return a:key
+    endif
+endf
 
 
 function! vimform#SpecialInsertKey(key, pumkey, prepend) "{{{3
@@ -513,14 +492,7 @@ function! vimform#SpecialInsertKey(key, pumkey, prepend) "{{{3
         return a:pumkey
     else
         let self = b:vimform
-        let name = self.GetCurrentFieldName()
-        let type = get(self._fields[name], 'type', 'text')
-        let key = a:key
-        if type == 'checkbox'
-            let key = "\<esc>"
-        elseif type == 'singlechoice'
-            let key = "\<esc>"
-        endif
+        let key = self.DelegateCurrentField('GetSpecialInsertKey', a:key)
         if a:prepend
             let key = a:key . key
         endif
@@ -534,29 +506,8 @@ function! g:vimform#prototype.SpecialKey(key, insertmode) dict "{{{3
     let key = a:key
     " TLogVAR key, pumvisible()
     if !pumvisible()
-        let view = winsaveview()
         let name = self.GetCurrentFieldName()
-        let type = 'text'
-        try
-            let type = get(self._fields[name], 'type', 'text')
-        finally
-            call winrestview(view)
-        endtry
-        " TLogVAR type
-        if type == 'checkbox'
-            let key = ''
-            call s:ToggleCheckbox(self, name)
-        elseif type == 'singlechoice'
-            " call self.SetModifiable(2)
-            " exec 'norm! '. self.indent .'|d$'
-            call self.SetModifiable(3)
-            let key = "$a\<c-x>\<c-o>"
-            " let mode = 't'
-            " let key = ''
-            " call s:SelectSingleChoice()
-        else
-            let key = get(self.mapargs, key, key)
-        endif
+        let key = self.Delegate(name, 'GetSpecialKey', name, key)
     endif
     if !empty(key)
         " TLogVAR key, mode
@@ -566,134 +517,28 @@ endf
 
 
 function! g:vimform#prototype.Key(key) dict "{{{3
-    " TLogVAR a:key
-    let key = a:key
-    let ccol = col('.')
-    let ecol = col('$')
-    let lnum = line('.')
-    let type = self.GetCurrentFieldType()
-    let frx  = self.GetFieldsRx()
-    if type == 'checkbox'
-        let key = "\<cr>"
-    elseif type == 'singlechoice'
-        let key = "\<cr>"
-    elseif a:key =~ '^[ai]$'
-        " TLogVAR ccol, ecol, self.indent
-        if a:key == 'a' && ccol < self.indent
-            let key = ''
-        elseif a:key == 'i' && ccol <= self.indent
-            let key = ''
-        elseif ccol >= self.indent
-            call self.SetModifiable(1)
-        endif
-    endif
+    let key = self.DelegateCurrentField('GetKey', a:key)
+    " TLogVAR name, a:key, key
     return key
 endf
 
 
 function! g:vimform#prototype.Key_dd() dict "{{{3
-    let type = self.GetCurrentFieldType()
-    if type == 'checkbox'
-        let key = ''
-    elseif type == 'singlechoice'
-        call self.SetModifiable(2)
-        let key = (self.indent + 1) .'|d$'
-    else
-        let key  = 'dd'
-        let lnum = line('.')
-        let line = getline(lnum)
-        let frx  = self.GetFieldsRx()
-        let steps = 1
-        if line =~ frx
-            if lnum < line('$') && getline(lnum + 1) =~ self.GetIndentRx()
-                let key = self.indent .'|d$J'
-                let steps += 2
-            elseif empty(strpart(line, self.indent))
-                let key = ''
-            else
-                let key = self.indent .'|d$'
-                let steps += 1
-            endif
-        elseif lnum < line('$') && getline(lnum + 1) =~ frx
-            let key .= 'k'
-        endif
-        if !empty(key)
-            call self.SetModifiable(steps)
-        endif
-    endif
+    let key = self.DelegateCurrentField('Key_dd')
     return key
 endf
 
 
 function! g:vimform#prototype.Key_BS() dict "{{{3
-    let type = self.GetCurrentFieldType()
-    " TLogVAR type, mode()
-    if type == 'checkbox'
-        let key = ''
-    elseif type == 'singlechoice'
-        let key = ''
-    else
-        let min = self.indent + 1
-        " (mode() == 'n')
-        if col('.') <= min
-            let key = ''
-        else
-            let key = mode() == 'n' ? 'X' : "\<bs>"
-            call self.SetModifiable(1)
-        endif
-        " TLogVAR col('.'), self.indent, min, mode(), key
-    endif
+    let key = self.DelegateCurrentField('Key_BS')
     return key
 endf
 
 
 function! g:vimform#prototype.Key_DEL() dict "{{{3
-    let type = self.GetCurrentFieldType()
-    if type == 'checkbox'
-        let key = ''
-    elseif type == 'singlechoice'
-        let key = ''
-    else
-        let lnum = line('.')
-        let frx  = self.GetFieldsRx()
-        if col('.') >= col('$') && (lnum == line('$') || getline(lnum + 1) =~ frx)
-            let key = ''
-        else
-            let key = "\<del>"
-            call self.SetModifiable(1)
-        endif
-    endif
+    let key = self.DelegateCurrentField('Key_DEL')
     return key
 endf
-
-
-function! s:ToggleCheckbox(self, name) "{{{3
-    let line = getline('.')
-    let notchecked = line =~ '\[ \]$'
-    if notchecked
-        let value = 'X'
-    else
-        let value = ' '
-    endif
-    let a:self.values[a:name] = !notchecked
-    " TLogVAR value
-    call a:self.SetModifiable(1)
-    let line = substitute(line, '\[\zs.\ze\]$', value, '')
-    call setline('.', line)
-endf
-
-
-" function! s:SelectSingleChoice() "{{{3
-"     let self = b:vimform
-"     let name = b:vimform.GetCurrentFieldName()
-"     " let base = strpart(getline('.'), b:vimform.indent)
-"     " TLogVAR name, base
-"     exec 'norm! '. self.indent .'|d$'
-"     let def = self._fields[name]
-"     let s:vimform_list = get(def, 'list', [])
-"     call self.SetModifiable(2)
-"     call feedkeys("a\<c-r>=vimform#CompleteSingleChoice(-1, '')\<cr>", 'n')
-" endf
 
 
 function! g:vimform#prototype.SetIndent() dict "{{{3
@@ -745,9 +590,8 @@ function! g:vimform#prototype.GetField(name, ...) dict "{{{3
         echoerr 'VimForm: No field of that name:' a:name
     else
         let view = winsaveview()
+        let def = self._fields[a:name]
         try
-            let def = self._fields[a:name]
-            let type = get(def, 'type', 'text')
             let crx = self.GetFieldRx(a:name)
             let start = search(crx, 'w')
             " TLogVAR a:name, crx, start
@@ -781,13 +625,8 @@ function! g:vimform#prototype.GetField(name, ...) dict "{{{3
                             call add(out, pjoin)
                         endif
                     endfor
-                    let value = join(out, '')
+                    let value = self.Delegate(a:name, 'GetFieldValue', join(out, ''))
                     " TLogVAR ljoin, pjoin, out, value
-                    if type == 'checkbox'
-                        let value = value =~ 'X'
-                    elseif type == 'singlechoice'
-                        let value = substitute(value, '^\[\zs.\{-}\ze\]$', '\0', '')
-                    endif
                     let return = get(def, 'return', {})
                     if !empty(return) && has_key(return, value)
                         return return[value]
@@ -796,11 +635,7 @@ function! g:vimform#prototype.GetField(name, ...) dict "{{{3
                     endif
                 endif
             endif
-            if quiet
-                return type == 'checkbox' ? 0 : ''
-            else
-                echoerr 'VimForm: Field not found: ' a:name
-            endif
+            return def.default_value
         finally
             call winrestview(view)
         endtry
@@ -855,17 +690,16 @@ endf
 
 function! vimform#Complete(findstart, base) "{{{3
     if exists('b:vimform')
+        let self = b:vimform
         if a:findstart
-            let field = b:vimform.GetCurrentFieldName()
+            let field = self.GetCurrentFieldName()
             " TLogVAR a:findstart, a:base, field
-            let def = b:vimform._fields[field]
-            let type = get(def, 'type', 'text')
+            let def = self._fields[field]
+            let type = self.GetFieldType(field)
             if type == 'singlechoice'
                 let s:vimform_list = get(def, 'list', [])
-                let b:vimform_complete = 'vimform#CompleteSingleChoice'
-            else
-                let b:vimform_complete = get(def, 'complete', '')
             endif
+            let b:vimform_complete = get(def, 'complete', '')
         endif
         if empty(b:vimform_complete)
             if a:findstart
