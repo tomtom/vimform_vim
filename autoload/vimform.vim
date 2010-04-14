@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2008-07-16.
 " @Last Change: 2010-04-14.
-" @Revision:    0.0.1466
+" @Revision:    0.0.1493
 
 let s:save_cpo = &cpo
 set cpo&vim
@@ -64,6 +64,7 @@ if !exists('g:vimform#prototype')
                 \ 'values': {},
                 \ 'fields': [],
                 \ '_fields': {},
+                \ '_formattedlabels': {},
                 \ 'mapargs': {},
                 \ 'header': [
                 \   '<F1>:help; <F5>:redraw; <TAB>:next field; <C-CR>:submit'
@@ -87,10 +88,10 @@ let s:special_line_rx = s:skip_line_rx .'\V\|\^\(| \.\{-} |\)\$'
 let s:done_commands = 0
 
 
-function! g:vimform#prototype.Delegate(name, method, ...) dict "{{{3
-    " TLogVAR "Delegate", a:name, a:method, a:000
-    if !empty(a:name)
-        let field = self._fields[a:name]
+function! g:vimform#prototype.Delegate(fieldname, method, ...) dict "{{{3
+    " TLogVAR "Delegate", a:fieldname, a:method, a:000
+    if !empty(a:fieldname)
+        let field = self._fields[a:fieldname]
         return call(field[a:method], [self] + a:000, field)
     endif
 endf
@@ -99,8 +100,8 @@ endf
 function! g:vimform#prototype.DelegateCurrentField(method, ...) dict "{{{3
     " TLogVAR "DelegateCurrentField", a:method, a:000
     " TLogVAR keys(self)
-    let name = self.GetCurrentFieldName()
-    return call(self.Delegate, [name, a:method] + a:000, self)
+    let fieldname = self.GetCurrentFieldName()
+    return call(self.Delegate, [fieldname, a:method] + a:000, self)
 endf
 
 
@@ -133,20 +134,23 @@ endf
 function! g:vimform#prototype.Setup() dict "{{{3
     let self._fields = {}
     for def in self.fields
-        let name = get(def, 0)
-        if name !~ '^-'
+        let fieldname = get(def, 0)
+        if fieldname !~ '^-'
             let def1 = get(def, 1, {})
             let type = get(def1, 'type', 'text')
-            " TLogVAR name, type
+            " TLogVAR fieldname, type
             call extend(def1, g:vimform#widgets[type], 'keep')
-            let self._fields[name] = def1
+            let def1.name = fieldname
+            let def1.formattedlabel = def1.FormatLabel(self)
+            let self._formattedlabels[def1.formattedlabel] = fieldname
+            let self._fields[fieldname] = def1
         endif
     endfor
 
     let self._buttons = {}
     for button in self.buttons
-        let name = self.GetButtonLabel(button)
-        let self._buttons[name] = button
+        let buttonname = self.GetButtonLabel(button)
+        let self._buttons[buttonname] = button
     endfor
 
     return self
@@ -177,18 +181,18 @@ function! g:vimform#prototype.Display() dict "{{{3
     let fmt = ' %'. (self.indent - s:indent_plus) .'s: %s'
     " TLogVAR fmt
     for def0 in self.fields
-        let name = get(def0, 0)
-        if name =~ '^-'
-            let text = matchstr(name, '^-\+\s\+\zs.*$')
+        let fieldname = get(def0, 0)
+        if fieldname =~ '^-'
+            let text = matchstr(fieldname, '^-\+\s\+\zs.*$')
             let npre = self.indent - 1
             let npost = width - npre - len(text)
             let line = repeat('_', npre) .' '. text .' '. repeat('_', npost)
         else
-            let def = get(def0, 1, {})
+            let def = self._fields[fieldname]
             let type = get(def, 'type', 'text')
-            let value = get(self.values, name, get(def, 'value', ''))
-            let text = self.Delegate(name, 'Format', value)
-            let line = printf(fmt, name, text)
+            let value = get(self.values, fieldname, get(def, 'value', ''))
+            let text = self.Delegate(fieldname, 'Format', value)
+            let line = printf(fmt, def.formattedlabel, text)
         endif
         call append('$', line)
     endfor
@@ -221,8 +225,8 @@ function! s:EnsureBuffer() "{{{3
 endf
 
 
-function! s:FormatButton(name) "{{{3
-    return printf('<<%s>>', a:name)
+function! s:FormatButton(buttonname) "{{{3
+    return printf('<<%s>>', a:buttonname)
 endf
 
 
@@ -241,24 +245,24 @@ endf
 function! g:vimform#prototype.Submit() dict "{{{3
     let m = matchlist(getline('.'), '<<\([^>]\{-}\%'. col('.') .'c[^>]\{-}\)>>')
     if empty(m)
-        let name = 'Submit'
+        let buttonname = 'Submit'
     else
-        let name = substitute(m[1], '&', '', 'g')
-        let name = substitute(name, '\W', '_', 'g')
-        " TLogVAR name
+        let buttonname = substitute(m[1], '&', '', 'g')
+        let buttonname = substitute(buttonname, '\W', '_', 'g')
+        " TLogVAR buttonname
     endif
     call self.CollectFields()
     if self.Validate()
-        let cb_name = 'Do_'. name
-        if name == 'Cancel'
+        let cb_name = 'Do_'. buttonname
+        if buttonname == 'Cancel'
             call self.Do_Cancel()
-        elseif name == 'Submit'
+        elseif buttonname == 'Submit'
             call self.Do_Cancel()
             call self.Do_Submit()
         elseif has_key(self, cb_name)
             call self.{cb_name}()
         else
-            throw "VimForm: Unknown button: ". name
+            throw "VimForm: Unknown button: ". buttonname
         endif
     endif
 endf
@@ -321,9 +325,9 @@ function! g:vimform#prototype.NextField(flags, in_insertmode, to_insertmode) dic
     let brx = self.GetButtonsRx()
     let rx = frx .'\|'. brx
     " TLogVAR rx
-    let name = self.GetCurrentFieldName()
-    if !empty(name)
-        let self.values[name] = self.GetField(name)
+    let fieldname = self.GetCurrentFieldName()
+    if !empty(fieldname)
+        let self.values[fieldname] = self.GetField(fieldname)
         if a:flags =~ 'b'
             norm! 0
         endif
@@ -358,32 +362,25 @@ function! g:vimform#prototype.GetCurrentFieldName(...) dict "{{{3
         if a:0 >= 1
             call setpos('.', a:1)
         endif
-        let name = ''
+        let fieldname = ''
         let lnum = search(frx, 'bcnW')
         if lnum
-            let name = matchstr(getline(lnum), self.GetFieldRx('\zs\.\{-}\ze'))
+            let fieldname = matchstr(getline(lnum), self.GetFieldRx('\zs\.\{-}\ze'))
+            " TLogVAR getline(lnum), fieldname
+            if !empty(fieldname)
+                let fieldname = self._formattedlabels[fieldname]
+            endif
         endif
-        " TLogVAR line('.'), lnum, name
-        return name
+        " TLogVAR line('.'), lnum, fieldname
+        return fieldname
     finally
         call winrestview(view)
     endtry
 endf
 
 
-function! g:vimform#prototype.GetFieldType(name) dict "{{{3
-    return get(self._fields[a:name], 'type', 'text')
-endf
-
-
-function! g:vimform#prototype.GetCurrentFieldType() dict "{{{3
-    let field = self.GetCurrentFieldName()
-    if empty(field)
-        return ''
-    else
-        let type = self.GetFieldType(field)
-        return type
-    endif
+function! g:vimform#prototype.GetFieldType(fieldname) dict "{{{3
+    return get(self._fields[a:fieldname], 'type', 'text')
 endf
 
 
@@ -439,16 +436,16 @@ function! g:vimform#prototype.SetModifiable(...) dict "{{{3
         if line =~ s:special_line_rx
             let modifiable = 0
         else
-            let field = self.GetCurrentFieldName()
-            " TLogVAR field
-            if empty(field)
+            let fieldname = self.GetCurrentFieldName()
+            " TLogVAR fieldname
+            if empty(fieldname) || !self._fields[fieldname].modifiable
                 let modifiable = 0
             else
                 " TLogVAR col('.'), self.indent
                 if col('.') <= self.indent
                     let modifiable = 0
                 else
-                    let modifiable = self._fields[field].modifiable
+                    let modifiable = self._fields[fieldname].modifiable
                 endif
             endif
         endif
@@ -506,8 +503,8 @@ function! g:vimform#prototype.SpecialKey(key, insertmode) dict "{{{3
     let key = a:key
     " TLogVAR key, pumvisible()
     if !pumvisible()
-        let name = self.GetCurrentFieldName()
-        let key = self.Delegate(name, 'GetSpecialKey', name, key)
+        let fieldname = self.GetCurrentFieldName()
+        let key = self.Delegate(fieldname, 'GetSpecialKey', fieldname, key)
     endif
     if !empty(key)
         " TLogVAR key, mode
@@ -518,7 +515,7 @@ endf
 
 function! g:vimform#prototype.Key(key) dict "{{{3
     let key = self.DelegateCurrentField('GetKey', a:key)
-    " TLogVAR name, a:key, key
+    " TLogVAR a:key, key
     return key
 endf
 
@@ -542,7 +539,7 @@ endf
 
 
 function! g:vimform#prototype.SetIndent() dict "{{{3
-    let self.indent = max(map(keys(self._fields), 'len(v:val) + s:indent_plus'))
+    let self.indent = max(map(copy(self._fields), 'len(v:val.formattedlabel) + s:indent_plus'))
 endf
 
 
@@ -569,8 +566,8 @@ function! g:vimform#prototype.GetAllFields() dict "{{{3
     let dict = {}
     let names = self.GetOrderedFieldNames()
     " TLogVAR names
-    for name in names
-        let dict[name] = self.GetField(name, names)
+    for fieldname in names
+        let dict[fieldname] = self.GetField(fieldname, names)
     endfor
     return dict
 endf
@@ -581,20 +578,20 @@ function! g:vimform#prototype.GetOrderedFieldNames() dict "{{{3
 endf
 
 
-function! g:vimform#prototype.GetField(name, ...) dict "{{{3
+function! g:vimform#prototype.GetField(fieldname, ...) dict "{{{3
     call s:EnsureBuffer()
     let quiet = a:0 >= 1
     let names = a:0 >= 1 ? a:1 : self.GetOrderedFieldNames()
-    let index = index(names, a:name)
+    let index = index(names, a:fieldname)
     if index == -1
-        echoerr 'VimForm: No field of that name:' a:name
+        echoerr 'VimForm: No field of that name:' a:fieldname
     else
         let view = winsaveview()
-        let def = self._fields[a:name]
+        let def = self._fields[a:fieldname]
         try
-            let crx = self.GetFieldRx(a:name)
+            let crx = self.GetFieldRx(a:fieldname)
             let start = search(crx, 'w')
-            " TLogVAR a:name, crx, start
+            " TLogVAR a:fieldname, crx, start
             if start
                 if index < len(names) - 1
                     let nrx = self.GetFieldsRx() .'\|'. s:special_line_rx
@@ -625,7 +622,7 @@ function! g:vimform#prototype.GetField(name, ...) dict "{{{3
                             call add(out, pjoin)
                         endif
                     endfor
-                    let value = self.Delegate(a:name, 'GetFieldValue', join(out, ''))
+                    let value = self.Delegate(a:fieldname, 'GetFieldValue', join(out, ''))
                     " TLogVAR ljoin, pjoin, out, value
                     let return = get(def, 'return', {})
                     if !empty(return) && has_key(return, value)
@@ -648,13 +645,13 @@ function! g:vimform#prototype.GetIndentRx() dict "{{{3
 endf
 
 
-function! g:vimform#prototype.GetFieldRx(name) dict "{{{3
-    return '\V\^ \+'. a:name .': '
+function! g:vimform#prototype.GetFieldRx(fieldname) dict "{{{3
+    return '\V\^ \+'. a:fieldname .':\%'. self.indent .'c '
 endf
 
 
 function! g:vimform#prototype.GetFieldsRx() dict "{{{3
-    let rxs = map(keys(self._fields), 'escape(v:val, ''\'')')
+    let rxs = map(values(self._fields), 'escape(v:val.formattedlabel, ''\'')')
     return '\V\^ \+\('. join(rxs, '\|') .'\): '
 endf
 
