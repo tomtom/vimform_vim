@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2008-07-16.
-" @Last Change: 2010-04-12.
-" @Revision:    0.0.32
+" @Last Change: 2010-04-14.
+" @Revision:    0.0.44
 
 if version < 600
     syntax clear
@@ -22,8 +22,10 @@ syn match VimformSeparator /^_\+ .\{-} _\+$/
 syn match VimformComment /^" .*$/
 syn match VimformButton /<<.\{-}>>/ contained containedin=VimformControls
 syn match VimformControls /^| .* |$/ contains=VimformButton
-syn match VimformLabel /^ \+.\{-}\ze: /
+syn match VimformAttribute /^ \(File\|Dir\)| / contained containedin=VimformLabel
+syn match VimformLabel /^ \+.\{-}\ze: / contains=VimformAttribute
 
+HiLink VimformAttribute Type
 HiLink VimformLabel Constant 
 HiLink VimformButton Special
 HiLink VimformControls Identifier
