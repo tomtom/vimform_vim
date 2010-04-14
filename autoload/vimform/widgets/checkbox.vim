@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-04-14.
 " @Last Change: 2010-04-14.
-" @Revision:    12
+" @Revision:    14
 
 let s:save_cpo = &cpo
 set cpo&vim
@@ -15,11 +15,7 @@ if has_key(g:vimform#widgets, 'checkbox')
 endif
 
 
-let s:prototype = {
-            \ 'modifiable': 0,
-            \ 'default_value': 0,
-            \ 'complete': '',
-            \ }
+let s:prototype = vimform#widget#New()
 
 
 function! s:prototype.Format(form, value) dict "{{{3
@@ -34,11 +30,6 @@ endf
 
 function! s:prototype.SelectField(form, to_insertmode) dict "{{{3
     call vimform#Feedkeys('l', 0)
-endf
-
-
-function! s:prototype.GetValidate(form) dict "{{{3
-    return get(self, 'validate', '')
 endf
 
 

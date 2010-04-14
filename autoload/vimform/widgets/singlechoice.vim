@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-04-14.
 " @Last Change: 2010-04-14.
-" @Revision:    17
+" @Revision:    22
 
 let s:save_cpo = &cpo
 set cpo&vim
@@ -15,29 +15,12 @@ if has_key(g:vimform#widgets, 'singlechoice')
 endif
 
 
-let s:prototype = {
-            \ 'modifiable': 0,
-            \ 'default_value': 0,
-            \ 'complete': 'vimform#CompleteSingleChoice',
-            \ }
-
-
-function! s:prototype.Format(form, value) dict "{{{3
-    return a:value
-endf
-
-
-function! s:prototype.GetFieldValue(form, value) dict "{{{3
-    return a:value
-endf
-
-
-function! s:prototype.SelectField(form, to_insertmode) dict "{{{3
-endf
+let s:prototype = vimform#widget#New()
+let s:prototype.complete = 'vimform#CompleteSingleChoice'
 
 
 function! s:prototype.GetValidate(form) dict "{{{3
-    TLogVAR self
+    " TLogVAR self
     if has_key(self, 'list')
         let list = get(self, 'list', [])
         return get(self, 'validate', 'index('. string(list) .', %s) != -1')
@@ -66,7 +49,7 @@ endf
 
 function! s:prototype.GetSpecialKey(form, name, key) dict "{{{3
     " TLogVAR a:name, a:key
-    call a:form.SetModifiable(3)
+    call a:form.SetModifiable(2)
     return "$a\<c-x>\<c-o>"
 endf
 
