@@ -739,7 +739,7 @@ endf
 function! vimform#CommandComplete(ArgLead, CmdLine, CursorPos) "{{{3
     if !s:done_commands
         let s:done_commands = 1
-        runtime! autoload/vimform/commands/*.vim
+        runtime! autoload/vimform/forms/*.vim
     endif
     let commands = copy(g:vimform#forms)
     " TLogVAR commands
