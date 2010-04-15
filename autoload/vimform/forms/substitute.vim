@@ -1,10 +1,9 @@
 " substitute.vim
 " @Author:      Thomas Link (mailto:micathom AT gmail com?subject=[vim])
-" @Website:     http://www.lithom.net
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-04-13.
 " @Last Change: 2010-04-14.
-" @Revision:    0.0.28
+" @Revision:    0.0.29
 
 
 let s:substitute_form = vimform#SimpleForm()

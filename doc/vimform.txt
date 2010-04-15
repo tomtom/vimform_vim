@@ -98,16 +98,32 @@ Also available via git: http://github.com/tomtom/vimform_vim/
 ========================================================================
 Contents~
 
+        :Vimform ....................... |:Vimform|
         vimform#New .................... |vimform#New()|
         vimform#SimpleForm ............. |vimform#SimpleForm()|
         :VimformReset .................. |:VimformReset|
+        g:vimform#forms ................ |g:vimform#forms|
+        g:vimform#view ................. |g:vimform#view|
         g:vimform#prototype ............ |g:vimform#prototype|
+        g:vimform#widgets .............. |g:vimform#widgets|
+        vimform#AppendOrInsert ......... |vimform#AppendOrInsert()|
+        vimform#Insertmode ............. |vimform#Insertmode()|
+        vimform#Feedkeys ............... |vimform#Feedkeys()|
         vimform#PumKey ................. |vimform#PumKey()|
         vimform#SpecialInsertKey ....... |vimform#SpecialInsertKey()|
         vimform#Balloon ................ |vimform#Balloon()|
         vimform#Complete1 .............. |vimform#Complete1()|
         vimform#Complete ............... |vimform#Complete()|
         vimform#CompleteSingleChoice ... |vimform#CompleteSingleChoice()|
+        vimform#CommandComplete ........ |vimform#CommandComplete()|
+        vimform#Command ................ |vimform#Command()|
+
+
+========================================================================
+plugin/vimform.vim~
+
+                                                    *:Vimform*
+:Vimform
 
 
 ========================================================================
@@ -127,9 +143,18 @@ vimform#SimpleForm()
     If called with [!], use the original values. Otherwise try to reuse 
     the current values.
 
+                                                    *g:vimform#forms*
+g:vimform#forms                (default: {})
+
+                                                    *g:vimform#view*
+g:vimform#view                 (default: "split")
+
                                                     *g:vimform#prototype*
 g:vimform#prototype            (default: {...})
     The default form tepmlate.
+
+                                                    *g:vimform#widgets*
+g:vimform#widgets              (default: {})
 
 
 
@@ -141,11 +166,20 @@ g:vimform#prototype#Show(?cmd = "split")
     cmd should create a new buffer. By default, the new buffer will be 
     shown in a split view.
 
-                                                    *vimform#PumKey()*
+                                                    *vimform#AppendOrInsert()*
+vimform#AppendOrInsert()
+
+                                                    *vimform#Insertmode()*
+vimform#Insertmode()
+
+                                                    *vimform#Feedkeys()*
 g:vimform#prototype.GetCurrentFieldName(?pos = '.') dict "{{{3
 
+                                                    *vimform#PumKey()*
+vimform#PumKey(key)
+
                                                     *vimform#SpecialInsertKey()*
-vimform#SpecialInsertKey(key, prepend)
+vimform#SpecialInsertKey(key, pumkey, prepend)
 
                                                     *vimform#Balloon()*
 vimform#Balloon()
@@ -158,6 +192,12 @@ vimform#Complete(findstart, base)
 
                                                     *vimform#CompleteSingleChoice()*
 vimform#CompleteSingleChoice(findstart, base)
+
+                                                    *vimform#CommandComplete()*
+vimform#CommandComplete(ArgLead, CmdLine, CursorPos)
+
+                                                    *vimform#Command()*
+vimform#Command(cmd)
 
 
 
