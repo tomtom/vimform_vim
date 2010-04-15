@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-04-09.
-" @Last Change: 2010-04-14.
-" @Revision:    120
+" @Last Change: 2010-04-15.
+" @Revision:    126
 
 if exists("b:did_ftplugin")
     finish
@@ -55,17 +55,23 @@ inoremap <silent> <buffer> <s-tab> <c-\><c-n>:call b:vimform.NextField('bw', 1, 
 imap <expr> <buffer> <c-space> vimform#Complete1()
 
 imap <expr> <buffer> <bs> b:vimform.Key_BS()
-nmap <expr> <buffer> <bs> b:vimform.Key_BS()
+map <expr> <buffer> <bs> b:vimform.Key_BS()
 nmap <expr> <buffer> X b:vimform.Key_BS()
 
 imap <expr> <buffer> <del> b:vimform.Key_DEL()
-nmap <expr> <buffer> <del> b:vimform.Key_DEL()
+map <expr> <buffer> <del> b:vimform.Key_DEL()
 nmap <expr> <buffer> x b:vimform.Key_DEL()
 
 nmap <expr> <buffer> dd b:vimform.Key_dd()
 
 nmap <expr> <buffer> a b:vimform.Key('a')
 nmap <expr> <buffer> i b:vimform.Key('i')
+
+" FIXME: define ]], ][, [[, [] in terms of NextField
+for m in split('{}[]()', '\zs') + [']]', '][', '[[', '[]']
+    exec 'map <expr> <buffer> '. m .' vimform#Motion("'. m .'")'
+    exec 'omap <expr> <buffer> '. m .' vimform#Motion("'. m .'")'
+endfor
 
 
 let &cpo = s:save_cpo
