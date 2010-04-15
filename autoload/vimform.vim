@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2008-07-16.
-" @Last Change: 2010-04-14.
-" @Revision:    0.0.1493
+" @Last Change: 2010-04-15.
+" @Revision:    0.0.1561
 
 let s:save_cpo = &cpo
 set cpo&vim
@@ -590,7 +590,6 @@ endf
 
 function! g:vimform#prototype.GetField(fieldname, ...) dict "{{{3
     call s:EnsureBuffer()
-    let quiet = a:0 >= 1
     let names = a:0 >= 1 ? a:1 : self.GetOrderedFieldNames()
     let index = index(names, a:fieldname)
     if index == -1
@@ -768,6 +767,121 @@ function! vimform#Command(cmd) "{{{3
         echoerr "Vimform: Unknown or ambivalent command: ". a:cmd
     endif
 endf
+
+
+function! s:GetField(...) "{{{3
+    let lnum = a:0 >= 1 ? a:1 : line('.')
+    let lbeg = s:FieldBegin(lnum)
+    let lend = s:FieldEnd(lnum)
+    let lines = getline(lbeg, lend)
+    let self = b:vimform
+    call map(lines, 'strpart(v:val, self.indent)')
+    return lines
+endf
+
+
+function! s:FieldBegin(...) "{{{3
+    let lnum = a:0 >= 1 ? a:1 : line('.')
+    let self = b:vimform
+    let frx  = self.GetFieldsRx() .'\|'. s:special_line_rx
+    while lnum > 0 && getline(lnum) !~ frx
+        let lnum -= 1
+    endwh
+    return lnum
+endf
+
+
+function! s:FieldEnd(...) "{{{3
+    let lnum1 = (a:0 >= 1 ? a:1 : line('.')) + 1
+    let max = line('$')
+    let self = b:vimform
+    let frx  = self.GetFieldsRx() .'\|'. s:special_line_rx
+    while lnum1 <= max && getline(lnum1) !~ frx
+        let lnum1 += 1
+    endwh
+    return lnum1 - 1
+endf
+
+
+function! s:FieldNext(...) "{{{3
+    let lnum = a:0 >= 1 ? a:1 : line('.')
+    call self.NextField('w', 0, 0)
+endf
+
+
+let s:motions = {
+            \ '(': 'Begin',
+            \ ')': 'End',
+            \ '{': 'Begin',
+            \ '}': 'Next',
+            \ '[': 'Begin',
+            \ ']': 'Next',
+            \ }
+
+
+function! vimform#Motion(motion) "{{{3
+    call s:EnsureBuffer()
+    let l = line("'". a:motion)
+    if l
+        let self = b:vimform
+        let a = self.GetCurrentFieldName()
+        let b = self.GetCurrentFieldName(l)
+        " TLogVAR l, a, b
+        if a != b
+            if has_key(s:motions, a:motion)
+                let amot = s:motions[a:motion]
+                let alnum = s:Field{amot}()
+                if alnum
+                    let alnum .= 'G'
+                    if amot == 'Begin'
+                        let alnum .= self.indent .'|'
+                    elseif amot == 'End'
+                        let alnum .= '$'
+                    endif
+                    return alnum
+                endif
+            endif
+            return ''
+        endif
+    endif
+    return a:motion
+endf
+
+
+" function! vimform#Motion(motion) "{{{3
+"     call s:EnsureBuffer()
+"     let field = s:GetField()
+"     let view = winsaveview()
+"     let lnum0 = s:FieldBegin()
+"     let byte0 = line2byte(lnum0)
+"     let pos = []
+"     try
+"         split __VimFormScratch__
+"         setlocal buftype=nofile
+"         setlocal bufhidden=hide
+"         setlocal noswapfile
+"         setlocal nobuflisted
+"         setlocal foldmethod=manual
+"         setlocal foldcolumn=0
+"         setlocal modifiable
+"         setlocal nospell
+"         call setline(1, field)
+"         exec 'norm! '. a:motion
+"         let pos1 = getpos('.')
+"         let byte1 = line2byte('.')
+"     finally
+"         wincmd c
+"         call winrestview(view)
+"     endtry
+"     if !empty(pos)
+"         let byte = byte0 + byte1 + pos1[2]
+"         let ldiff = pos1[]
+"         let self = b:vimform
+"         let byte += (pos1[1] - lnum0) * self.indent
+"         return byte .'go'
+"     endif
+"     return ''
+" endf
 
 
 let &cpo = s:save_cpo
