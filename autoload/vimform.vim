@@ -357,25 +357,35 @@ endf
 function! g:vimform#prototype.GetCurrentFieldName(...) dict "{{{3
     let frx = self.GetFieldsRx() .'\|'. s:special_line_rx
     " TLogVAR frx
-    let view = winsaveview()
-    try
-        if a:0 >= 1
-            call setpos('.', a:1)
+    let view = {}
+    if a:0 >= 1
+        if type(a:1) == 0
+            let lnum = a:1
+        else
+            let lnum = a:1[1]
         endif
-        let fieldname = ''
-        let lnum = search(frx, 'bcnW')
-        if lnum
-            let fieldname = matchstr(getline(lnum), self.GetFieldRx('\zs\.\{-}\ze'))
-            " TLogVAR getline(lnum), fieldname
-            if !empty(fieldname)
-                let fieldname = self._formattedlabels[fieldname]
-            endif
+        " TLogVAR a:1, lnum
+    else
+        let lnum = line('.')
+    endif
+    let frx = self.GetFieldRx('\zs\.\{-}\ze')
+    let fieldname = ''
+    while lnum > 0
+        let line = getline(lnum)
+        if line =~ frx
+            let fieldname = matchstr(line, frx)
+            break
         endif
-        " TLogVAR line('.'), lnum, fieldname
-        return fieldname
-    finally
-        call winrestview(view)
-    endtry
+        let lnum -= 1
+    endwh
+    " TLogVAR lnum, getline(lnum), fieldname
+    if !empty(fieldname)
+        let fieldname = get(self._formattedlabels, fieldname, fieldname)
+        " TLogVAR fieldname
+        " echom "DBG ". string(keys(self._formattedlabels))
+    endif
+    " TLogVAR line('.'), lnum, fieldname
+    return fieldname
 endf
 
 
