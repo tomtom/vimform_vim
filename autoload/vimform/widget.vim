@@ -2,8 +2,8 @@
 " @Author:      Thomas Link (mailto:micathom AT gmail com?subject=[vim])
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-04-14.
-" @Last Change: 2010-04-14.
-" @Revision:    0.0.10
+" @Last Change: 2010-04-15.
+" @Revision:    0.0.37
 
 let s:save_cpo = &cpo
 set cpo&vim
@@ -110,12 +110,29 @@ function! s:prototype.Key_dd(form) dict "{{{3
 endf
 
 
+function! s:GetSelectionRange() "{{{3
+    let l1 = line("v")
+    let l2 = line("'.")
+    return [l1, l2]
+endf
+
+
 function! s:prototype.Key_BS(form) dict "{{{3
     let min = a:form.indent + 1
     " (mode() == 'n')
-    if col('.') <= min
+    if col('.') <= min || !self.modifiable
         let key = ''
-    elseif self.modifiable
+    elseif mode() =~? '[vs]$'
+        let [l1, l2] = s:GetSelectionRange()
+        let n1 = a:form.GetCurrentFieldName([0, l1, 0, 0])
+        let n2 = a:form.GetCurrentFieldName([0, l2, 0, 0])
+        " TLogVAR l1, n1, l2, n2
+        if n1 == n2
+            let key = "\<bs>"
+        else
+            let key = ''
+        endif
+    else
         let key = mode() == 'n' ? 'X' : "\<bs>"
         call a:form.SetModifiable(1)
     endif
@@ -126,9 +143,19 @@ endf
 function! s:prototype.Key_DEL(form) dict "{{{3
     let lnum = line('.')
     let frx  = a:form.GetFieldsRx()
-    if col('.') >= col('$') && (lnum == line('$') || getline(lnum + 1) =~ frx)
+    if !self.modifiable || col('.') >= col('$') && (lnum == line('$') || getline(lnum + 1) =~ frx)
         let key = ''
-    elseif self.modifiable
+    elseif mode() =~? '[vs]$'
+        let [l1, l2] = s:GetSelectionRange()
+        let n1 = a:form.GetCurrentFieldName([0, l1, 0, 0])
+        let n2 = a:form.GetCurrentFieldName([0, l2, 0, 0])
+        " TLogVAR l1, n1, l2, n2
+        if n1 == n2
+            let key = "\<del>"
+        else
+            let key = ''
+        endif
+    else
         let key = "\<del>"
         call a:form.SetModifiable(1)
     endif
