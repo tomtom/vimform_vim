@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-04-14.
-" @Last Change: 2010-04-21.
-" @Revision:    98
+" @Last Change: 2010-04-24.
+" @Revision:    108
 
 if has_key(g:vimform#widgets, 'file')
     finish
@@ -82,6 +82,12 @@ else
         return "$a\<c-x>\<c-f>"
     endf
 endif
+
+
+function! s:prototype.GetSpecialInsertKey(form, key) dict "{{{3
+    " TLogVAR a:key
+    return "\<esc>". a:key
+endf
 
 
 function! s:prototype.Key_dd(form) dict "{{{3
