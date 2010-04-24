@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2008-07-16.
-" @Last Change: 2010-04-15.
-" @Revision:    0.0.1561
+" @Last Change: 2010-04-24.
+" @Revision:    0.0.1596
 
 let s:save_cpo = &cpo
 set cpo&vim
@@ -83,9 +83,10 @@ endif
 
 let s:vimform_modification = 0
 let s:indent_plus = 3
-let s:skip_line_rx = '\V\^\(" \.\+\|_\+ \.\{-} _\+\)\$'
+let s:skip_line_rx = '\V\^\["_]'
 let s:special_line_rx = s:skip_line_rx .'\V\|\^\(| \.\{-} |\)\$'
 let s:done_commands = 0
+let s:ignore_cusor_moved = 0
 
 
 function! g:vimform#prototype.Delegate(fieldname, method, ...) dict "{{{3
@@ -324,7 +325,7 @@ function! g:vimform#prototype.NextField(flags, in_insertmode, to_insertmode) dic
     let frx = self.GetFieldsRx()
     let brx = self.GetButtonsRx()
     let rx = frx .'\|'. brx
-    " TLogVAR rx
+    " TLogVAR rx, frx
     let fieldname = self.GetCurrentFieldName()
     if !empty(fieldname)
         let self.values[fieldname] = self.GetField(fieldname)
@@ -333,8 +334,10 @@ function! g:vimform#prototype.NextField(flags, in_insertmode, to_insertmode) dic
         endif
     endif
     let lnum = search(rx, 'e'. a:flags)
-    if lnum && getline(lnum) =~ frx
-        " TLogVAR lnum
+    let line = getline(lnum)
+    " TLogVAR col('.'), lnum, line
+    " TLogDBG line =~ frx
+    if lnum && line =~ frx
         call cursor(lnum, self.indent + 1)
         call self.DelegateCurrentField('SelectField', a:to_insertmode)
     endif
@@ -355,8 +358,6 @@ endf
 
 " :display: g:vimform#prototype.GetCurrentFieldName(?pos = '.') dict "{{{3
 function! g:vimform#prototype.GetCurrentFieldName(...) dict "{{{3
-    let frx = self.GetFieldsRx() .'\|'. s:special_line_rx
-    " TLogVAR frx
     let view = {}
     if a:0 >= 1
         if type(a:1) == 0
@@ -372,7 +373,9 @@ function! g:vimform#prototype.GetCurrentFieldName(...) dict "{{{3
     let fieldname = ''
     while lnum > 0
         let line = getline(lnum)
-        if line =~ frx
+        if line =~ s:special_line_rx
+            break
+        elseif line =~ frx
             let fieldname = matchstr(line, frx)
             break
         endif
@@ -401,12 +404,25 @@ function! vimform#Feedkeys(keys, level) "{{{3
 endf
 
 
+function! g:vimform#prototype.IgnoreCursorMoved(number) dict "{{{3
+    let s:ignore_cusor_moved += a:number
+endf
+
+
 function! g:vimform#prototype.CursorMoved() dict "{{{3
+    if s:ignore_cusor_moved > 0
+        let s:ignore_cusor_moved -= 1
+        return
+    endif
     let lnum = line('.')
     let line = getline(lnum)
+    let in_insertmode = mode() == 'i'
     " TLogVAR line
     if line =~ s:skip_line_rx
-        call self.NextField('w', mode() == 'i', mode() != 'i')
+        call self.NextField('w', in_insertmode, mode() != 'i')
+    elseif line =~ s:special_line_rx
+        call feedkeys("\<esc>", 't')
+        call self.SetModifiable()
     else
         " TLogVAR line, len(line)
         " TLogVAR col('$'), self.indent, mode()
@@ -494,7 +510,7 @@ endf
 
 
 function! vimform#SpecialInsertKey(key, pumkey, prepend) "{{{3
-    " TLogVAR a:key, a:prepend
+    " TLogVAR a:key, a:prepend, pumvisible()
     if pumvisible()
         return a:pumkey
     else
@@ -503,6 +519,7 @@ function! vimform#SpecialInsertKey(key, pumkey, prepend) "{{{3
         if a:prepend
             let key = a:key . key
         endif
+        " TLogVAR a:key, key
         return key
     endif
 endf
@@ -511,7 +528,6 @@ endf
 function! g:vimform#prototype.SpecialKey(key, insertmode) dict "{{{3
     let mode = 'n'
     let key = a:key
-    " TLogVAR key, pumvisible()
     if !pumvisible()
         let fieldname = self.GetCurrentFieldName()
         let key = self.Delegate(fieldname, 'GetSpecialKey', fieldname, key)
@@ -603,8 +619,8 @@ function! g:vimform#prototype.GetField(fieldname, ...) dict "{{{3
             " TLogVAR a:fieldname, crx, start
             if start
                 if index < len(names) - 1
-                    let nrx = self.GetFieldsRx() .'\|'. s:special_line_rx
-                    let end = search(nrx, 'w') - 1
+                    let srx = self.GetSpecialRx()
+                    let end = search(srx, 'w') - 1
                 else
                     let end = line('$')
                 endif
@@ -650,7 +666,7 @@ endf
 
 
 function! g:vimform#prototype.GetIndentRx() dict "{{{3
-    return '\V\s\{'. self.indent .'}'
+    return '\V\^\s\{'. self.indent .'}'
 endf
 
 
@@ -662,6 +678,11 @@ endf
 function! g:vimform#prototype.GetFieldsRx() dict "{{{3
     let rxs = map(values(self._fields), 'escape(v:val.formattedlabel, ''\'')')
     return '\V\^ \+\('. join(rxs, '\|') .'\): '
+endf
+
+
+function! g:vimform#prototype.GetSpecialRx() dict "{{{3
+    return self.GetFieldsRx() .'\|'. s:special_line_rx
 endf
 
 
@@ -783,8 +804,8 @@ endf
 function! s:FieldBegin(...) "{{{3
     let lnum = a:0 >= 1 ? a:1 : line('.')
     let self = b:vimform
-    let frx  = self.GetFieldsRx() .'\|'. s:special_line_rx
-    while lnum > 0 && getline(lnum) !~ frx
+    let srx  = self.GetSpecialRx()
+    while lnum > 0 && getline(lnum) !~ srx
         let lnum -= 1
     endwh
     return lnum
@@ -795,8 +816,8 @@ function! s:FieldEnd(...) "{{{3
     let lnum1 = (a:0 >= 1 ? a:1 : line('.')) + 1
     let max = line('$')
     let self = b:vimform
-    let frx  = self.GetFieldsRx() .'\|'. s:special_line_rx
-    while lnum1 <= max && getline(lnum1) !~ frx
+    let srx  = self.GetSpecialRx()
+    while lnum1 <= max && getline(lnum1) !~ srx
         let lnum1 += 1
     endwh
     return lnum1 - 1

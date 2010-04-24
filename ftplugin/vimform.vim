@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-04-09.
-" @Last Change: 2010-04-15.
-" @Revision:    126
+" @Last Change: 2010-04-24.
+" @Revision:    129
 
 if exists("b:did_ftplugin")
     finish
@@ -30,9 +30,9 @@ noremap <buffer> <silent> <LeftMouse> <LeftMouse>:call b:vimform.SpecialKey('', 
 " inoremap <buffer> <silent> <LeftMouse> <LeftMouse><c-\><c-n>:call b:vimform.SpecialKey('', 1)<cr>
 " inoremap <buffer> <silent> <space> <c-\><c-n>:call b:vimform.SpecialKey(' ', 1)<cr>
 " inoremap <buffer> <silent> <cr> <c-\><c-n>:call b:vimform.SpecialKey('<lt>cr>', 1)<cr>
-inoremap <expr> <buffer> <silent> <LeftMouse> vimform#SpecialInsertKey("\<lt>LeftMouse>", '', 1)
-inoremap <expr> <buffer> <silent> <space> vimform#SpecialInsertKey(' ', "\<c-y>", 0)
-inoremap <expr> <buffer> <silent> <cr> vimform#SpecialInsertKey("\<lt>cr>", "\<c-y>", 0)
+imap <expr> <buffer> <silent> <LeftMouse> vimform#SpecialInsertKey("\<lt>LeftMouse>", '', 1)
+imap <expr> <buffer> <silent> <space> vimform#SpecialInsertKey(' ', "\<c-y>", 0)
+imap <expr> <buffer> <silent> <cr> vimform#SpecialInsertKey("\<lt>cr>", "\<c-y>", 0)
 
 imap <expr> <buffer> <c-y> vimform#PumKey("\<c-y>")
 imap <expr> <buffer> <c-e> vimform#PumKey("\<c-e>")
