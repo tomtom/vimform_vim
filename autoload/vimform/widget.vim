@@ -2,8 +2,8 @@
 " @Author:      Thomas Link (mailto:micathom AT gmail com?subject=[vim])
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-04-14.
-" @Last Change: 2010-04-15.
-" @Revision:    0.0.37
+" @Last Change: 2010-04-24.
+" @Revision:    0.0.43
 
 let s:save_cpo = &cpo
 set cpo&vim
@@ -88,10 +88,11 @@ function! s:prototype.Key_dd(form) dict "{{{3
     let key  = 'dd'
     let lnum = line('.')
     let line = getline(lnum)
-    let frx  = a:form.GetFieldsRx()
     let steps = 1
-    if line =~ frx
-        if lnum < line('$') && getline(lnum + 1) =~ a:form.GetIndentRx()
+    let srx = a:form.GetSpecialRx()
+    if line =~ a:form.GetFieldsRx()
+        " if lnum < line('$') && getline(lnum + 1) =~ a:form.GetIndentRx()
+        if lnum < line('$') && getline(lnum + 1) !~ srx
             let key = a:form.indent .'|d$J'
             let steps += 2
         elseif empty(strpart(line, a:form.indent))
@@ -100,7 +101,8 @@ function! s:prototype.Key_dd(form) dict "{{{3
             let key = a:form.indent .'|d$'
             let steps += 1
         endif
-    elseif lnum < line('$') && getline(lnum + 1) =~ frx
+    elseif lnum < line('$') && getline(lnum + 1) =~ srx
+        call a:form.IgnoreCursorMoved(1)
         let key .= 'k'
     endif
     if !empty(key) && self.modifiable
