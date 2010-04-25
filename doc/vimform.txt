@@ -98,25 +98,75 @@ Also available via git: http://github.com/tomtom/vimform_vim/
 ========================================================================
 Contents~
 
-        :Vimform ....................... |:Vimform|
-        vimform#New .................... |vimform#New()|
-        vimform#SimpleForm ............. |vimform#SimpleForm()|
-        :VimformReset .................. |:VimformReset|
-        g:vimform#forms ................ |g:vimform#forms|
-        g:vimform#view ................. |g:vimform#view|
-        g:vimform#prototype ............ |g:vimform#prototype|
-        g:vimform#widgets .............. |g:vimform#widgets|
-        vimform#AppendOrInsert ......... |vimform#AppendOrInsert()|
-        vimform#Insertmode ............. |vimform#Insertmode()|
-        vimform#Feedkeys ............... |vimform#Feedkeys()|
-        vimform#PumKey ................. |vimform#PumKey()|
-        vimform#SpecialInsertKey ....... |vimform#SpecialInsertKey()|
-        vimform#Balloon ................ |vimform#Balloon()|
-        vimform#Complete1 .............. |vimform#Complete1()|
-        vimform#Complete ............... |vimform#Complete()|
-        vimform#CompleteSingleChoice ... |vimform#CompleteSingleChoice()|
-        vimform#CommandComplete ........ |vimform#CommandComplete()|
-        vimform#Command ................ |vimform#Command()|
+        :Vimform .................................... |:Vimform|
+        vimform#New ................................. |vimform#New()|
+        vimform#SimpleForm .......................... |vimform#SimpleForm()|
+        :VimformReset ............................... |:VimformReset|
+        g:vimform#forms ............................. |g:vimform#forms|
+        g:vimform#view .............................. |g:vimform#view|
+        g:vimform#prototype ......................... |g:vimform#prototype|
+        g:vimform#widgets ........................... |g:vimform#widgets|
+        vimform#AppendOrInsert ...................... |vimform#AppendOrInsert()|
+        vimform#Insertmode .......................... |vimform#Insertmode()|
+        vimform#Feedkeys ............................ |vimform#Feedkeys()|
+        vimform#PumKey .............................. |vimform#PumKey()|
+        vimform#SpecialInsertKey .................... |vimform#SpecialInsertKey()|
+        vimform#Balloon ............................. |vimform#Balloon()|
+        vimform#Complete1 ........................... |vimform#Complete1()|
+        vimform#Complete ............................ |vimform#Complete()|
+        vimform#CompleteSingleChoice ................ |vimform#CompleteSingleChoice()|
+        vimform#CommandComplete ..................... |vimform#CommandComplete()|
+        vimform#Command ............................. |vimform#Command()|
+        vimform#Motion .............................. |vimform#Motion()|
+        vimform#forms#substitute#ValidateRegexp ..... |vimform#forms#substitute#ValidateRegexp()|
+        vimform#forms#substitute#ValidateSubst ...... |vimform#forms#substitute#ValidateSubst()|
+        prototype.FormatLabel
+        prototype.Format
+        prototype.GetFieldValue
+        prototype.SelectField
+        prototype.GetValidate
+        prototype.SetCursorMoved
+        prototype.GetPumKey
+        prototype.GetSpecialInsertKey
+        prototype.GetSpecialKey
+        prototype.GetKey
+        prototype.Key_dd
+        prototype.Key_BS
+        prototype.Key_DEL
+        vimform#widget#New .......................... |vimform#widget#New()|
+        prototype.Format
+        prototype.GetFieldValue
+        prototype.SelectField
+        prototype.SetCursorMoved
+        prototype.GetPumKey
+        prototype.GetSpecialInsertKey
+        prototype.GetSpecialKey
+        prototype.GetKey
+        prototype.Key_dd
+        prototype.Key_BS
+        prototype.Key_DEL
+        vimform#widgets#file#Complete ............... |vimform#widgets#file#Complete()|
+        vimform#widgets#file#Validate ............... |vimform#widgets#file#Validate()|
+        prototype.Format
+        prototype.GetFieldValue
+        prototype.GetSpecialKey
+        prototype.GetSpecialKey
+        prototype.GetSpecialInsertKey
+        prototype.Key_dd
+        prototype.GetValidate
+        prototype.SetCursorMoved
+        prototype.GetPumKey
+        prototype.GetSpecialInsertKey
+        prototype.GetSpecialKey
+        prototype.GetKey
+        prototype.Key_dd
+        prototype.Key_BS
+        prototype.Key_DEL
+        prototype.Format
+        prototype.GetFieldValue
+        prototype.GetSpecialKey
+        prototype.GetSpecialKey
+        prototype.Key_dd
 
 
 ========================================================================
@@ -198,6 +248,186 @@ vimform#CommandComplete(ArgLead, CmdLine, CursorPos)
 
                                                     *vimform#Command()*
 vimform#Command(cmd)
+
+                                                    *vimform#Motion()*
+vimform#Motion(motion)
+
+
+========================================================================
+autoload/vimform/forms/substitute.vim~
+
+                                                    *vimform#forms#substitute#ValidateRegexp()*
+vimform#forms#substitute#ValidateRegexp(rx)
+
+                                                    *vimform#forms#substitute#ValidateSubst()*
+vimform#forms#substitute#ValidateSubst(str)
+
+
+========================================================================
+autoload/vimform/widget.vim~
+
+
+prototype.FormatLabel
+
+
+prototype.Format
+
+
+prototype.GetFieldValue
+
+
+prototype.SelectField
+
+
+prototype.GetValidate
+
+
+prototype.SetCursorMoved
+
+
+prototype.GetPumKey
+
+
+prototype.GetSpecialInsertKey
+
+
+prototype.GetSpecialKey
+
+
+prototype.GetKey
+
+
+prototype.Key_dd
+
+
+prototype.Key_BS
+
+
+prototype.Key_DEL
+
+                                                    *vimform#widget#New()*
+vimform#widget#New()
+
+
+========================================================================
+autoload/vimform/widgets/checkbox.vim~
+
+
+prototype.Format
+
+
+prototype.GetFieldValue
+
+
+prototype.SelectField
+
+
+prototype.SetCursorMoved
+
+
+prototype.GetPumKey
+
+
+prototype.GetSpecialInsertKey
+
+
+prototype.GetSpecialKey
+
+
+prototype.GetKey
+
+
+prototype.Key_dd
+
+
+prototype.Key_BS
+
+
+prototype.Key_DEL
+
+
+========================================================================
+autoload/vimform/widgets/file.vim~
+
+                                                    *vimform#widgets#file#Complete()*
+vimform#widgets#file#Complete(findstart, base)
+
+                                                    *vimform#widgets#file#Validate()*
+vimform#widgets#file#Validate(file)
+
+
+prototype.Format
+
+
+prototype.GetFieldValue
+
+
+prototype.GetSpecialKey
+
+
+prototype.GetSpecialKey
+    TLogVAR a:name, a:key
+    let dir = get(self, 'cd', expand('%:h'))
+    TLOgVAR file
+
+
+prototype.GetSpecialInsertKey
+
+
+prototype.Key_dd
+
+
+========================================================================
+autoload/vimform/widgets/singlechoice.vim~
+
+
+prototype.GetValidate
+
+
+prototype.SetCursorMoved
+
+
+prototype.GetPumKey
+
+
+prototype.GetSpecialInsertKey
+
+
+prototype.GetSpecialKey
+
+
+prototype.GetKey
+
+
+prototype.Key_dd
+
+
+prototype.Key_BS
+
+
+prototype.Key_DEL
+
+
+========================================================================
+autoload/vimform/widgets/dir.vim~
+
+
+prototype.Format
+
+
+prototype.GetFieldValue
+
+
+prototype.GetSpecialKey
+
+
+prototype.GetSpecialKey
+    TLogVAR a:name, a:key
+    let dir = get(self, 'cd', expand('%:h'))
+    TLOgVAR dir
+
+
+prototype.Key_dd
 
 
 
