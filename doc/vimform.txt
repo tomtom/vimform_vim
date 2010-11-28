@@ -207,9 +207,7 @@ g:vimform#prototype            (default: {...})
 g:vimform#widgets              (default: {})
 
 
-
     Show the form in a split window.
-
 
 g:vimform#prototype#Show(?cmd = "split")
     Show the form.
@@ -266,42 +264,29 @@ vimform#forms#substitute#ValidateSubst(str)
 ========================================================================
 autoload/vimform/widget.vim~
 
-
 prototype.FormatLabel
-
 
 prototype.Format
 
-
 prototype.GetFieldValue
-
 
 prototype.SelectField
 
-
 prototype.GetValidate
-
 
 prototype.SetCursorMoved
 
-
 prototype.GetPumKey
-
 
 prototype.GetSpecialInsertKey
 
-
 prototype.GetSpecialKey
-
 
 prototype.GetKey
 
-
 prototype.Key_dd
 
-
 prototype.Key_BS
-
 
 prototype.Key_DEL
 
@@ -312,36 +297,25 @@ vimform#widget#New()
 ========================================================================
 autoload/vimform/widgets/checkbox.vim~
 
-
 prototype.Format
-
 
 prototype.GetFieldValue
 
-
 prototype.SelectField
-
 
 prototype.SetCursorMoved
 
-
 prototype.GetPumKey
-
 
 prototype.GetSpecialInsertKey
 
-
 prototype.GetSpecialKey
-
 
 prototype.GetKey
 
-
 prototype.Key_dd
 
-
 prototype.Key_BS
-
 
 prototype.Key_DEL
 
@@ -355,24 +329,18 @@ vimform#widgets#file#Complete(findstart, base)
                                                     *vimform#widgets#file#Validate()*
 vimform#widgets#file#Validate(file)
 
-
 prototype.Format
-
 
 prototype.GetFieldValue
 
-
 prototype.GetSpecialKey
-
 
 prototype.GetSpecialKey
     TLogVAR a:name, a:key
     let dir = get(self, 'cd', expand('%:h'))
     TLOgVAR file
 
-
 prototype.GetSpecialInsertKey
-
 
 prototype.Key_dd
 
@@ -380,30 +348,21 @@ prototype.Key_dd
 ========================================================================
 autoload/vimform/widgets/singlechoice.vim~
 
-
 prototype.GetValidate
-
 
 prototype.SetCursorMoved
 
-
 prototype.GetPumKey
-
 
 prototype.GetSpecialInsertKey
 
-
 prototype.GetSpecialKey
-
 
 prototype.GetKey
 
-
 prototype.Key_dd
 
-
 prototype.Key_BS
-
 
 prototype.Key_DEL
 
@@ -411,21 +370,16 @@ prototype.Key_DEL
 ========================================================================
 autoload/vimform/widgets/dir.vim~
 
-
 prototype.Format
-
 
 prototype.GetFieldValue
 
-
 prototype.GetSpecialKey
-
 
 prototype.GetSpecialKey
     TLogVAR a:name, a:key
     let dir = get(self, 'cd', expand('%:h'))
     TLOgVAR dir
-
 
 prototype.Key_dd
 

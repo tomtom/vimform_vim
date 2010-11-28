@@ -1,5 +1,3 @@
-*vimform.txt*       Simple text-based forms for vim
-
 Example: >
 
     let form = vimform#New()
@@ -8,9 +6,9 @@ Example: >
                 \ ['Name'],
                 \ ['Address',  {'join': "\n"}],
                 \ ['Planet',   {'value': 'Earth'}],
-                \ ['Phone',    {'validate': '%%s =~ ''^[0-9()+-]*$''',
+                \ ['Phone',    {'validate': '%s =~ ''^[0-9()+-]*$''',
                 \               'message': 'Must be a phone number'}],
-                \ ['E-Mail',   {'validate': '%%s =~ ''^\([a-zA-Z.]\+@[a-zA-Z]\+\.[a-zA-Z.]\+\)\?$''',
+                \ ['E-Mail',   {'validate': '%s =~ ''^\([a-zA-Z.]\+@[a-zA-Z]\+\.[a-zA-Z.]\+\)\?$''',
                 \               'message': 'Must be an e-mail'}],
                 \ ['Private',  {'value': 0, 'type': 'checkbox'}],
                 \ ['Business', {'value': 1, 'type': 'checkbox'}],
