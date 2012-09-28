@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2008-07-16.
 " @Last Change: 2010-04-24.
-" @Revision:    0.0.1596
+" @Revision:    0.0.1601
 
 let s:save_cpo = &cpo
 set cpo&vim
@@ -107,15 +107,17 @@ endf
 
 
 " Show the form in a split window.
+" :nodoc:
 function! g:vimform#prototype.Split() dict "{{{3
     call self.Show('split')
 endf
 
 
-" :display: g:vimform#prototype#Show(?cmd = "split")
+" g:vimform#prototype#Show(?cmd = "split")
 " Show the form.
 " cmd should create a new buffer. By default, the new buffer will be 
 " shown in a split view.
+" :nodoc:
 function! g:vimform#prototype.Show(...) dict "{{{3
     let cmd = a:0 >= 1 ? a:1 : g:vimform#view
     silent exec cmd fnameescape(self.name)
@@ -132,6 +134,7 @@ function! g:vimform#prototype.Show(...) dict "{{{3
 endf
 
 
+" :nodoc:
 function! g:vimform#prototype.Setup() dict "{{{3
     let self._fields = {}
     for def in self.fields
@@ -158,6 +161,7 @@ function! g:vimform#prototype.Setup() dict "{{{3
 endf
 
 
+" :nodoc:
 function! g:vimform#prototype.Reset(vanilla) dict "{{{3
     if a:vanilla
         let self.values = {}
@@ -168,6 +172,7 @@ function! g:vimform#prototype.Reset(vanilla) dict "{{{3
 endf
 
 
+" :nodoc:
 function! g:vimform#prototype.Display() dict "{{{3
     setlocal modifiable
     " TLogVAR line('$')
@@ -243,6 +248,7 @@ function! s:SetAccellerators() "{{{3
 endf
 
 
+" :nodoc:
 function! g:vimform#prototype.Submit() dict "{{{3
     let m = matchlist(getline('.'), '<<\([^>]\{-}\%'. col('.') .'c[^>]\{-}\)>>')
     if empty(m)
@@ -269,15 +275,18 @@ function! g:vimform#prototype.Submit() dict "{{{3
 endf
 
 
+" :nodoc:
 function! g:vimform#prototype.Do_Submit() dict "{{{3
 endf
 
 
+" :nodoc:
 function! g:vimform#prototype.Do_Cancel() dict "{{{3
     wincmd c
 endf
 
 
+" :nodoc:
 function! g:vimform#prototype.Validate() dict "{{{3
     let invalid_values = filter(copy(self.values), '!self.ValidateField(v:key, v:val)')
     if !empty(invalid_values)
@@ -308,6 +317,7 @@ function! g:vimform#prototype.Validate() dict "{{{3
 endf
 
 
+" :nodoc:
 function! g:vimform#prototype.ValidateField(field, value) dict "{{{3
     let validate = self.Delegate(a:field, 'GetValidate')
     if empty(validate)
@@ -318,6 +328,7 @@ function! g:vimform#prototype.ValidateField(field, value) dict "{{{3
 endf
 
 
+" :nodoc:
 function! g:vimform#prototype.NextField(flags, in_insertmode, to_insertmode) dict "{{{3
     " TLogVAR a:flags, a:in_insertmode, a:to_insertmode
     call s:EnsureBuffer()
@@ -356,7 +367,8 @@ function! vimform#Insertmode() "{{{3
 endf
 
 
-" :display: g:vimform#prototype.GetCurrentFieldName(?pos = '.') dict "{{{3
+" g:vimform#prototype.GetCurrentFieldName(?pos = '.')
+" :nodoc:
 function! g:vimform#prototype.GetCurrentFieldName(...) dict "{{{3
     let view = {}
     if a:0 >= 1
@@ -392,6 +404,7 @@ function! g:vimform#prototype.GetCurrentFieldName(...) dict "{{{3
 endf
 
 
+" :nodoc:
 function! g:vimform#prototype.GetFieldType(fieldname) dict "{{{3
     return get(self._fields[a:fieldname], 'type', 'text')
 endf
@@ -404,11 +417,13 @@ function! vimform#Feedkeys(keys, level) "{{{3
 endf
 
 
+" :nodoc:
 function! g:vimform#prototype.IgnoreCursorMoved(number) dict "{{{3
     let s:ignore_cusor_moved += a:number
 endf
 
 
+" :nodoc:
 function! g:vimform#prototype.CursorMoved() dict "{{{3
     if s:ignore_cusor_moved > 0
         let s:ignore_cusor_moved -= 1
@@ -441,6 +456,7 @@ function! g:vimform#prototype.CursorMoved() dict "{{{3
 endf
 
 
+" :nodoc:
 function! g:vimform#prototype.SetModifiable(...) dict "{{{3
     if a:0 >= 1
         if a:1 >= 0
@@ -486,6 +502,7 @@ function! g:vimform#prototype.SetModifiable(...) dict "{{{3
 endf
 
 
+" :nodoc:
 function! g:vimform#prototype.SaveMapargs(...) dict "{{{3
     " TLogVAR a:000
     for map in a:000
@@ -525,6 +542,7 @@ function! vimform#SpecialInsertKey(key, pumkey, prepend) "{{{3
 endf
 
 
+" :nodoc:
 function! g:vimform#prototype.SpecialKey(key, insertmode) dict "{{{3
     let mode = 'n'
     let key = a:key
@@ -539,6 +557,7 @@ function! g:vimform#prototype.SpecialKey(key, insertmode) dict "{{{3
 endf
 
 
+" :nodoc:
 function! g:vimform#prototype.Key(key) dict "{{{3
     let key = self.DelegateCurrentField('GetKey', a:key)
     " TLogVAR a:key, key
@@ -546,34 +565,40 @@ function! g:vimform#prototype.Key(key) dict "{{{3
 endf
 
 
+" :nodoc:
 function! g:vimform#prototype.Key_dd() dict "{{{3
     let key = self.DelegateCurrentField('Key_dd')
     return key
 endf
 
 
+" :nodoc:
 function! g:vimform#prototype.Key_BS() dict "{{{3
     let key = self.DelegateCurrentField('Key_BS')
     return key
 endf
 
 
+" :nodoc:
 function! g:vimform#prototype.Key_DEL() dict "{{{3
     let key = self.DelegateCurrentField('Key_DEL')
     return key
 endf
 
 
+" :nodoc:
 function! g:vimform#prototype.SetIndent() dict "{{{3
     let self.indent = max(map(copy(self._fields), 'len(v:val.formattedlabel) + s:indent_plus'))
 endf
 
 
+" :nodoc:
 function! g:vimform#prototype.GetButtonLabel(def) dict "{{{3
     return get(a:def, 'label', a:def.name)
 endf
 
 
+" :nodoc:
 function! g:vimform#prototype.GetButtonsRx() dict "{{{3
     let button_labels = map(copy(self.buttons), 'self.GetButtonLabel(v:val)')
     call map(button_labels, 'strpart(v:val, 1)')
@@ -583,11 +608,13 @@ function! g:vimform#prototype.GetButtonsRx() dict "{{{3
 endf
 
 
+" :nodoc:
 function! g:vimform#prototype.CollectFields() dict "{{{3
     let self.values = self.GetAllFields()
 endf
 
 
+" :nodoc:
 function! g:vimform#prototype.GetAllFields() dict "{{{3
     let dict = {}
     let names = self.GetOrderedFieldNames()
@@ -599,11 +626,13 @@ function! g:vimform#prototype.GetAllFields() dict "{{{3
 endf
 
 
+" :nodoc:
 function! g:vimform#prototype.GetOrderedFieldNames() dict "{{{3
     return filter(map(copy(self.fields), 'v:val[0]'), 'v:val !~ ''^-''')
 endf
 
 
+" :nodoc:
 function! g:vimform#prototype.GetField(fieldname, ...) dict "{{{3
     call s:EnsureBuffer()
     let names = a:0 >= 1 ? a:1 : self.GetOrderedFieldNames()
@@ -665,27 +694,32 @@ function! g:vimform#prototype.GetField(fieldname, ...) dict "{{{3
 endf
 
 
+" :nodoc:
 function! g:vimform#prototype.GetIndentRx() dict "{{{3
     return '\V\^\s\{'. self.indent .'}'
 endf
 
 
+" :nodoc:
 function! g:vimform#prototype.GetFieldRx(fieldname) dict "{{{3
     return '\V\^ \+'. a:fieldname .':\%'. self.indent .'c '
 endf
 
 
+" :nodoc:
 function! g:vimform#prototype.GetFieldsRx() dict "{{{3
     let rxs = map(values(self._fields), 'escape(v:val.formattedlabel, ''\'')')
     return '\V\^ \+\('. join(rxs, '\|') .'\): '
 endf
 
 
+" :nodoc:
 function! g:vimform#prototype.GetSpecialRx() dict "{{{3
     return self.GetFieldsRx() .'\|'. s:special_line_rx
 endf
 
 
+" :nodoc:
 function! g:vimform#prototype.Indent() dict "{{{3
     let indent = self.indent
     let cline = getline(v:lnum)

@@ -118,25 +118,7 @@ Contents~
         vimform#CommandComplete ..................... |vimform#CommandComplete()|
         vimform#Command ............................. |vimform#Command()|
         vimform#Motion .............................. |vimform#Motion()|
-        vimform#forms#substitute#ValidateRegexp ..... |vimform#forms#substitute#ValidateRegexp()|
-        vimform#forms#substitute#ValidateSubst ...... |vimform#forms#substitute#ValidateSubst()|
-        prototype.FormatLabel
-        prototype.Format
-        prototype.GetFieldValue
-        prototype.SelectField
         prototype.GetValidate
-        prototype.SetCursorMoved
-        prototype.GetPumKey
-        prototype.GetSpecialInsertKey
-        prototype.GetSpecialKey
-        prototype.GetKey
-        prototype.Key_dd
-        prototype.Key_BS
-        prototype.Key_DEL
-        vimform#widget#New .......................... |vimform#widget#New()|
-        prototype.Format
-        prototype.GetFieldValue
-        prototype.SelectField
         prototype.SetCursorMoved
         prototype.GetPumKey
         prototype.GetSpecialInsertKey
@@ -153,7 +135,9 @@ Contents~
         prototype.GetSpecialKey
         prototype.GetSpecialInsertKey
         prototype.Key_dd
-        prototype.GetValidate
+        prototype.Format
+        prototype.GetFieldValue
+        prototype.SelectField
         prototype.SetCursorMoved
         prototype.GetPumKey
         prototype.GetSpecialInsertKey
@@ -167,6 +151,22 @@ Contents~
         prototype.GetSpecialKey
         prototype.GetSpecialKey
         prototype.Key_dd
+        vimform#forms#substitute#ValidateRegexp ..... |vimform#forms#substitute#ValidateRegexp()|
+        vimform#forms#substitute#ValidateSubst ...... |vimform#forms#substitute#ValidateSubst()|
+        prototype.FormatLabel
+        prototype.Format
+        prototype.GetFieldValue
+        prototype.SelectField
+        prototype.GetValidate
+        prototype.SetCursorMoved
+        prototype.GetPumKey
+        prototype.GetSpecialInsertKey
+        prototype.GetSpecialKey
+        prototype.GetKey
+        prototype.Key_dd
+        prototype.Key_BS
+        prototype.Key_DEL
+        vimform#widget#New .......................... |vimform#widget#New()|
 
 
 ========================================================================
@@ -201,18 +201,9 @@ g:vimform#view                 (default: "split")
 
                                                     *g:vimform#prototype*
 g:vimform#prototype            (default: {...})
-    The default form tepmlate.
 
                                                     *g:vimform#widgets*
 g:vimform#widgets              (default: {})
-
-
-    Show the form in a split window.
-
-g:vimform#prototype#Show(?cmd = "split")
-    Show the form.
-    cmd should create a new buffer. By default, the new buffer will be 
-    shown in a split view.
 
                                                     *vimform#AppendOrInsert()*
 vimform#AppendOrInsert()
@@ -221,7 +212,7 @@ vimform#AppendOrInsert()
 vimform#Insertmode()
 
                                                     *vimform#Feedkeys()*
-g:vimform#prototype.GetCurrentFieldName(?pos = '.') dict "{{{3
+vimform#Feedkeys(keys, level)
 
                                                     *vimform#PumKey()*
 vimform#PumKey(key)
@@ -249,6 +240,90 @@ vimform#Command(cmd)
 
                                                     *vimform#Motion()*
 vimform#Motion(motion)
+
+
+========================================================================
+autoload/vimform/widgets/singlechoice.vim~
+
+prototype.GetValidate
+
+prototype.SetCursorMoved
+
+prototype.GetPumKey
+
+prototype.GetSpecialInsertKey
+
+prototype.GetSpecialKey
+
+prototype.GetKey
+
+prototype.Key_dd
+
+prototype.Key_BS
+
+prototype.Key_DEL
+
+
+========================================================================
+autoload/vimform/widgets/file.vim~
+
+                                                    *vimform#widgets#file#Complete()*
+vimform#widgets#file#Complete(findstart, base)
+
+                                                    *vimform#widgets#file#Validate()*
+vimform#widgets#file#Validate(file)
+
+prototype.Format
+
+prototype.GetFieldValue
+
+prototype.GetSpecialKey
+
+prototype.GetSpecialKey
+
+prototype.GetSpecialInsertKey
+
+prototype.Key_dd
+
+
+========================================================================
+autoload/vimform/widgets/checkbox.vim~
+
+prototype.Format
+
+prototype.GetFieldValue
+
+prototype.SelectField
+
+prototype.SetCursorMoved
+
+prototype.GetPumKey
+
+prototype.GetSpecialInsertKey
+
+prototype.GetSpecialKey
+
+prototype.GetKey
+
+prototype.Key_dd
+
+prototype.Key_BS
+
+prototype.Key_DEL
+
+
+========================================================================
+autoload/vimform/widgets/dir.vim~
+
+prototype.Format
+
+prototype.GetFieldValue
+
+prototype.GetSpecialKey
+
+prototype.GetSpecialKey
+
+prototype.Key_dd
 
 
 ========================================================================
@@ -292,96 +367,6 @@ prototype.Key_DEL
 
                                                     *vimform#widget#New()*
 vimform#widget#New()
-
-
-========================================================================
-autoload/vimform/widgets/checkbox.vim~
-
-prototype.Format
-
-prototype.GetFieldValue
-
-prototype.SelectField
-
-prototype.SetCursorMoved
-
-prototype.GetPumKey
-
-prototype.GetSpecialInsertKey
-
-prototype.GetSpecialKey
-
-prototype.GetKey
-
-prototype.Key_dd
-
-prototype.Key_BS
-
-prototype.Key_DEL
-
-
-========================================================================
-autoload/vimform/widgets/file.vim~
-
-                                                    *vimform#widgets#file#Complete()*
-vimform#widgets#file#Complete(findstart, base)
-
-                                                    *vimform#widgets#file#Validate()*
-vimform#widgets#file#Validate(file)
-
-prototype.Format
-
-prototype.GetFieldValue
-
-prototype.GetSpecialKey
-
-prototype.GetSpecialKey
-    TLogVAR a:name, a:key
-    let dir = get(self, 'cd', expand('%:h'))
-    TLOgVAR file
-
-prototype.GetSpecialInsertKey
-
-prototype.Key_dd
-
-
-========================================================================
-autoload/vimform/widgets/singlechoice.vim~
-
-prototype.GetValidate
-
-prototype.SetCursorMoved
-
-prototype.GetPumKey
-
-prototype.GetSpecialInsertKey
-
-prototype.GetSpecialKey
-
-prototype.GetKey
-
-prototype.Key_dd
-
-prototype.Key_BS
-
-prototype.Key_DEL
-
-
-========================================================================
-autoload/vimform/widgets/dir.vim~
-
-prototype.Format
-
-prototype.GetFieldValue
-
-prototype.GetSpecialKey
-
-prototype.GetSpecialKey
-    TLogVAR a:name, a:key
-    let dir = get(self, 'cd', expand('%:h'))
-    TLOgVAR dir
-
-prototype.Key_dd
 
 
 

@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-04-14.
 " @Last Change: 2010-04-24.
-" @Revision:    108
+" @Revision:    109
 
 if has_key(g:vimform#widgets, 'file')
     finish
@@ -67,7 +67,7 @@ if has('browse')
         if empty(file)
             return ''
         else
-            " TLOgVAR file
+            " TLogVAR file
             let line = strpart(getline('.'), 0, a:form.indent) . file
             call a:form.SetModifiable(1)
             call setline('.', line)
