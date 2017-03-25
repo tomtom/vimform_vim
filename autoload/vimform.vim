@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2008-07-16.
-" @Last Change: 2010-04-24.
-" @Revision:    0.0.1601
+" @Last Change: 2017-03-25.
+" @Revision:    2.0.1601
 
 let s:save_cpo = &cpo
 set cpo&vim
@@ -261,9 +261,9 @@ function! g:vimform#prototype.Submit() dict "{{{3
     call self.CollectFields()
     if self.Validate()
         let cb_name = 'Do_'. buttonname
-        if buttonname == 'Cancel'
+        if buttonname ==# 'Cancel'
             call self.Do_Cancel()
-        elseif buttonname == 'Submit'
+        elseif buttonname ==# 'Submit'
             call self.Do_Cancel()
             call self.Do_Submit()
         elseif has_key(self, cb_name)
@@ -340,7 +340,7 @@ function! g:vimform#prototype.NextField(flags, in_insertmode, to_insertmode) dic
     let fieldname = self.GetCurrentFieldName()
     if !empty(fieldname)
         let self.values[fieldname] = self.GetField(fieldname)
-        if a:flags =~ 'b'
+        if a:flags =~# 'b'
             norm! 0
         endif
     endif

@@ -3,13 +3,13 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2008-07-16.
-" @Last Change: 2010-04-24.
-" @Revision:    97
+" @Last Change: 2017-03-25.
+" @Revision:    98
 
 
 let g:planets = ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptun', 'Pluto FTW']
 let form = vimform#New()
-let form.name = "Test Form"
+let form.name = 'Test Form'
 let form.fields = [
             \ ['Name'],
             \ ['Address', {'join': "\n"}],
@@ -22,9 +22,9 @@ let form.fields = [
             \ ['Note'],
             \ ]
 function! form.Do_Submit() dict "{{{3
-    echom "Test: ". self.name
+    echom 'Test: '. self.name
     for [field, value] in items(self.values)
-        echom "Field" field string(value)
+        echom 'Field' field string(value)
     endfor
 endf
 

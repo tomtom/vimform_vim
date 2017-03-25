@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-04-09.
-" @Last Change: 2010-04-24.
-" @Revision:    129
+" @Last Change: 2017-03-25.
+" @Revision:    131
 
 if exists("b:did_ftplugin")
     finish
@@ -65,7 +65,13 @@ nmap <expr> <buffer> x b:vimform.Key_DEL()
 nmap <expr> <buffer> dd b:vimform.Key_dd()
 
 nmap <expr> <buffer> a b:vimform.Key('a')
+nmap <expr> <buffer> a b:vimform.Key('A')
 nmap <expr> <buffer> i b:vimform.Key('i')
+nmap <expr> <buffer> i b:vimform.Key('I')
+nmap <expr> <buffer> i b:vimform.Key('s')
+nmap <expr> <buffer> i b:vimform.Key('S')
+nmap <expr> <buffer> i b:vimform.Key('c')
+nmap <expr> <buffer> i b:vimform.Key('C')
 
 " FIXME: define ]], ][, [[, [] in terms of NextField
 for m in split('{}[]()', '\zs') + [']]', '][', '[[', '[]']
