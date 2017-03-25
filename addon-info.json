@@ -5,5 +5,5 @@
     "maintainer" : "Tom Link <micathom at gmail com>",
     "repository" : {"type": "git", "url": "git://github.com/tomtom/vimform_vim.git"},
     "dependencies" : {},
-    "description" : ""
+    "description" : "Simple text-based forms for vim"
 }
